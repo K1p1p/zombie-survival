@@ -1,5 +1,19 @@
 {
+  "name": "zombie-survival",
+  "author": {
+    "name": "Willian Oliveira (K1p1p)"
+  },
   "dependencies": {
+    "serve": "^14.2.0",
     "ts-node": "^10.9.1"
+  },
+  "scripts": {
+    "release": "npm run clean && npm run build",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
+
+    "file-server": "node ./node_modules/serve/build/main.js ./",
+    "client": "start http://localhost:3000/src/client/",
+    "server": "ts-node --skip-project ./src/server/index"
   }
 }
