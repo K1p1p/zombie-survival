@@ -1,0 +1,1 @@
+Copy-Item -Path src/client/index.html -Destination dist
