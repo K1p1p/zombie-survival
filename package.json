@@ -8,7 +8,6 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
-    "release": "npm run clean && npm run build",
     "build": "npm run clean && tsc --build && npm run move-deps-to-build",
     "clean": "@powershell ./scripts/clean.ps1",
     "move-deps-to-build": "@powershell ./scripts/copy-client-html.ps1",
