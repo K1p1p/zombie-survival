@@ -1,4 +1,4 @@
-import Vector from "../../core/vector.js";
+import Vector, { VectorZero } from "../../core/vector.js";
 import Camera from "./camera.js";
 
 export default class GameObject {
@@ -6,7 +6,7 @@ export default class GameObject {
     rotation: number; // Angle
     direction: Vector;
 
-    constructor(position: Vector, rotation: number = 0, direction: Vector = { x: 0, y: 0 }) {
+    constructor(position: Vector, rotation: number = 0, direction: Vector = VectorZero()) {
         this.position = position;
         this.rotation = rotation;
         this.direction = direction;
