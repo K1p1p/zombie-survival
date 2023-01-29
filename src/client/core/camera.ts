@@ -1,4 +1,5 @@
-import Vector from "../../core/vector";
+import Vector from "../../core/vector.js";
+import World from "./world/world.js";
 
 export default class Camera {
     canvas: HTMLCanvasElement;
@@ -23,17 +24,15 @@ export default class Camera {
     }
 
     projectVector(vector: Vector): Vector {
-        const pixelsPerMeter: number = 100;
-
-        const output: Vector = { x: 0, y: 0 }
+        // Vector projected from camera to canvas
+        const output: Vector = World.screenToWorld({ 
+            x: (vector.x - this.position.x), 
+            y: (vector.y - this.position.y) 
+        });
 
         // Center in canvas
-        output.x = this.canvasCenter.x;
-        output.y = this.canvasCenter.y;
-
-        // Vector projected from camera to canvas
-        output.x += (vector.x - this.position.x) * pixelsPerMeter;
-        output.y += (vector.y - this.position.y) * pixelsPerMeter;
+        output.x += this.canvasCenter.x;
+        output.y += this.canvasCenter.y;
 
         return output;
     }
