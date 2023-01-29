@@ -1,4 +1,4 @@
-import Vector from "../../../core/vector.js";
+import Vector, { VectorZero } from "../../../core/vector.js";
 import { ButtonStateHandler } from "./buttonStateHandler.js";
 
 export class Mouse {
@@ -32,7 +32,7 @@ export class Mouse {
     }
 
     public static getScreenPosition(): undefined | Vector {
-        if(Mouse.lastState === undefined) { return undefined; }
+        if(Mouse.lastState === undefined) { return VectorZero(); }
 
         return {
             x: this.lastState.screenX,
