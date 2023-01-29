@@ -15,6 +15,10 @@ export class Keyboard {
         document.onkeydown = (event: KeyboardEvent) => Keyboard.buttonHandler.onKeyDown(event.key);
     }
 
+    public static prepareForFrame() {
+        Keyboard.buttonHandler.prepareForFrame();
+    }
+
     public static getKeyDown(key: KeyboardKey): boolean {
         return Keyboard.buttonHandler.getKeyDown(key);
     }

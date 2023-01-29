@@ -15,6 +15,10 @@ export class Mouse {
         document.onmousemove = updateState;
     }
 
+    public static prepareForFrame() {
+        Mouse.buttonHandler.prepareForFrame();
+    }
+
     public static getButtonDown(button: number): boolean {
         return Mouse.buttonHandler.getKeyDown(button.toString());
     }

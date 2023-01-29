@@ -48,6 +48,11 @@ function render() {
 }
 
 function logic() {
+    // Prepare input states
+    Mouse.prepareForFrame();
+    Keyboard.prepareForFrame();
+    // --Prepare input states
+
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight)) { moveDirection.x += 1; }
     if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft )) { moveDirection.x -= 1; }
