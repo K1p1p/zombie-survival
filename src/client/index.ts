@@ -6,6 +6,9 @@ import GameObject from "./core/gameObject.js";
 console.log("CLIENT WITH IMPORTED FILE: " + lerp(0, 100, 0.5));
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const renderingLoop: Loop = new Loop(60, render);
@@ -28,8 +31,8 @@ function render() {
     context.textAlign = "center";
     context.textBaseline = "middle";
 
-    for (let x = 0; x < 10; x++) {
-        for (let y = 0; y < 10; y++) {
+    for (let x = -10; x <= 10; x++) {
+        for (let y = -10; y <= 10; y++) {
             new CoordinateText({ x: x, y: y }).render(context, camera);
         }
     }

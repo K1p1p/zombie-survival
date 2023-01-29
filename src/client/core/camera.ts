@@ -29,7 +29,7 @@ export default class Camera {
 
         // Center in canvas
         output.x = this.canvasCenter.x;
-        output.y = this.canvasCenter.x;
+        output.y = this.canvasCenter.y;
 
         // Vector projected from camera to canvas
         output.x += (vector.x - this.position.x) * pixelsPerMeter;
