@@ -7,19 +7,12 @@ export default class Camera {
     size: number;
     position: Vector;
 
-    canvasPixelsToCenter: Vector;
-
     constructor(canvas: HTMLCanvasElement, x: number, y: number, size: number) {
         this.canvas = canvas;
         this.size = size;
         this.position = {
             x: x,
             y: y
-        }
-
-        this.canvasPixelsToCenter = {
-            x: (canvas.width / 2),
-            y: (canvas.height / 2),
         }
     }
 
@@ -32,8 +25,8 @@ export default class Camera {
         });
 
         // Camera centered in canvas
-        output.x += this.canvasPixelsToCenter.x;
-        output.y += this.canvasPixelsToCenter.y;
+        output.x += this.canvas.width / 2;
+        output.y += this.canvas.height / 2;
 
         return output;
     }
@@ -44,8 +37,8 @@ export default class Camera {
 
     projectScreenToWorld(pixelVector: Vector): Vector {
         const output: Vector = Coordinates.pixelsToWorld({
-            x: (pixelVector.x - this.canvasPixelsToCenter.x),
-            y: (pixelVector.y - this.canvasPixelsToCenter.y),
+            x: (pixelVector.x - (this.canvas.width / 2)),
+            y: (pixelVector.y - (this.canvas.height / 2)),
         });
 
         // Add camera offset position

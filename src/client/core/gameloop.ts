@@ -26,12 +26,17 @@ export default class GameLoop {
         this.draw = draw;
 
         // Canvas fill whole window
-        this.canvas.width = document.body.clientWidth;
-        this.canvas.height = document.body.clientHeight;
+        this.canvasFillWindow();
+        window.onresize = this.canvasFillWindow;
 
         // Init input handling
         Mouse.init(document);
         Keyboard.init(document);
+    }
+
+    private canvasFillWindow() {
+        this.canvas.width = document.body.clientWidth;
+        this.canvas.height = document.body.clientHeight;
     }
 
     private logic(deltaTime: number) {
