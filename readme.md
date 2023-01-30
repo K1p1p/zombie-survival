@@ -10,4 +10,4 @@ Hence the '--skip-project' in package.json 'server' script
     npm run file-server
     ```
 
-- Client TS imports need .js extension otherwise they won't be find during runtime.
+- Client TS imports need .js extension otherwise they won't be found during runtime.
