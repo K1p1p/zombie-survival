@@ -6,7 +6,6 @@ import { Mouse } from "./core/input/mouse.js";
 import { Keyboard, KeyboardKey } from "./core/input/keyboard.js";
 import Vector, { VectorZero } from "../core/vector.js";
 import { normalize } from "../core/vectorMath.js";
-import World from "./core/world/world.js";
 
 console.log("CLIENT WITH IMPORTED FILE: " + lerp(0, 100, 0.5));
 
@@ -28,7 +27,7 @@ class CoordinateText extends GameObject {
     render(context: CanvasRenderingContext2D, camera: Camera): void {
         super.render(context, camera);
 
-        context.fillText(`(${this.position.x}, ${this.position.y})`, 0, 0);
+        context.fillText(`(${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)})`, 0, 0);
     }
 }
 
@@ -45,6 +44,10 @@ function render() {
             new CoordinateText({ x: x, y: y }).render(context, camera);
         }
     }
+
+    // Mouse position displayer
+    const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
+    new CoordinateText(mousePos).render(context, camera);
 }
 
 function logic() {
@@ -56,12 +59,13 @@ function logic() {
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight)) { moveDirection.x += 1; }
     if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft )) { moveDirection.x -= 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   )) { moveDirection.y -= 1; } // Canvas Y-axis is inverted
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowDown )) { moveDirection.y += 1; } // Canvas Y-axis is inverted
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   )) { moveDirection.y += 1; }
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowDown )) { moveDirection.y -= 1; }
 
     const normalizedDir: Vector = normalize(moveDirection);
-    const step = (World.screenToWorldScale(1) * renderingLoop.getDeltaTime());
+    const speed = 1;
+    const step = (speed * renderingLoop.getDeltaTime());
 
-    camera.position.x += (normalizedDir.x * step * logicLoop.getDeltaTime());
-    camera.position.y += (normalizedDir.y * step * logicLoop.getDeltaTime());
+    camera.position.x += (normalizedDir.x * step);
+    camera.position.y += (normalizedDir.y * step);
 }

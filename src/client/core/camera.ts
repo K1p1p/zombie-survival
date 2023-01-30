@@ -1,5 +1,5 @@
 import Vector from "../../core/vector.js";
-import World from "./world/world.js";
+import Coordinates from "./coordinates.js";
 
 export default class Camera {
     canvas: HTMLCanvasElement;
@@ -7,7 +7,7 @@ export default class Camera {
     size: number;
     position: Vector;
 
-    canvasCenter: Vector;
+    canvasPixelsToCenter: Vector;
 
     constructor(canvas: HTMLCanvasElement, x: number, y: number, size: number) {
         this.canvas = canvas;
@@ -17,22 +17,40 @@ export default class Camera {
             y: y
         }
 
-        this.canvasCenter = {
+        this.canvasPixelsToCenter = {
             x: (canvas.width / 2),
             y: (canvas.height / 2),
         }
     }
 
-    projectVector(vector: Vector): Vector {
-        // Vector projected from camera to canvas
-        const output: Vector = World.screenToWorld({ 
-            x: (vector.x - this.position.x), 
-            y: (vector.y - this.position.y) 
+    /** Assumes canvas matrix is identity */
+    projectWorldToPixels(meterVector: Vector): Vector {
+        // Vector projected from camera(world coordinates) to pixel coordinates
+        const output: Vector = Coordinates.worldToPixels({ 
+            x: (meterVector.x - this.position.x), 
+            y: (meterVector.y - this.position.y) 
         });
 
-        // Center in canvas
-        output.x += this.canvasCenter.x;
-        output.y += this.canvasCenter.y;
+        // Camera centered in canvas
+        output.x += this.canvasPixelsToCenter.x;
+        output.y += this.canvasPixelsToCenter.y;
+
+        return output;
+    }
+
+    projectScreenToPixels(screenVector: Vector): Vector {
+        return screenVector;
+    }
+
+    projectScreenToWorld(pixelVector: Vector): Vector {
+        const output: Vector = Coordinates.pixelsToWorld({
+            x: (pixelVector.x - this.canvasPixelsToCenter.x),
+            y: (pixelVector.y - this.canvasPixelsToCenter.y),
+        });
+
+        // Add camera offset position
+        output.x += this.position.x;
+        output.y += this.position.y;
 
         return output;
     }

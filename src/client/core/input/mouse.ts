@@ -35,8 +35,8 @@ export class Mouse {
         if(Mouse.lastState === undefined) { return VectorZero(); }
 
         return {
-            x: this.lastState.screenX,
-            y: this.lastState.screenY,
+            x: this.lastState.pageX,
+            y: this.lastState.pageY,
         }
     }
 }
