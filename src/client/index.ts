@@ -1,4 +1,3 @@
-import Loop from "../core/loop.js";
 import Camera from "./core/camera.js";
 import { lerp } from "../core/math.js";
 import GameObject from "./core/gameObject.js";
@@ -6,22 +5,15 @@ import { Mouse } from "./core/input/mouse.js";
 import { Keyboard, KeyboardKey } from "./core/input/keyboard.js";
 import Vector, { VectorZero } from "../core/vector.js";
 import { normalize } from "../core/vectorMath.js";
+import GameLoop from "./core/gameloop.js";
 
 console.log("CLIENT WITH IMPORTED FILE: " + lerp(0, 100, 0.5));
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-canvas.width = document.body.clientWidth;
-canvas.height = document.body.clientHeight;
-
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
-const logicLoop: Loop = new Loop(60, logic);
-const renderingLoop: Loop = new Loop(60, render);
 const camera: Camera = new Camera(canvas, 0, 2, 10);
-
-// Init input
-Mouse.init(document);
-Keyboard.init(document);
+const game: GameLoop = new GameLoop(canvas, update, draw);
 
 class CoordinateText extends GameObject {
     render(context: CanvasRenderingContext2D, camera: Camera): void {
@@ -31,10 +23,22 @@ class CoordinateText extends GameObject {
     }
 }
 
-function render() {
-    context.setTransform(1, 0, 0, 1, 0, 0); // Identity matrix
-    context.clearRect(0, 0, canvas.width, canvas.height);
+function update(deltaTime: number) {
+    const moveDirection: Vector = VectorZero();
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowRight)) { moveDirection.x += 1; }
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft )) { moveDirection.x -= 1; }
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   )) { moveDirection.y += 1; }
+    if(Keyboard.getKeyHold(KeyboardKey.ArrowDown )) { moveDirection.y -= 1; }
 
+    const normalizedDir: Vector = normalize(moveDirection);
+    const speed = 1;
+    const step = (speed * deltaTime);
+
+    camera.position.x += (normalizedDir.x * step);
+    camera.position.y += (normalizedDir.y * step);
+}
+
+function draw(deltaTime: number) {
     context.font = "12px Arial";
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -48,24 +52,4 @@ function render() {
     // Mouse position displayer
     const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
     new CoordinateText(mousePos).render(context, camera);
-}
-
-function logic() {
-    // Prepare input states
-    Mouse.prepareForFrame();
-    Keyboard.prepareForFrame();
-    // --Prepare input states
-
-    const moveDirection: Vector = VectorZero();
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowRight)) { moveDirection.x += 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft )) { moveDirection.x -= 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   )) { moveDirection.y += 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowDown )) { moveDirection.y -= 1; }
-
-    const normalizedDir: Vector = normalize(moveDirection);
-    const speed = 1;
-    const step = (speed * renderingLoop.getDeltaTime());
-
-    camera.position.x += (normalizedDir.x * step);
-    camera.position.y += (normalizedDir.y * step);
 }
