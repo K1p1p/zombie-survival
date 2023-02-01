@@ -6,12 +6,6 @@ export default class Transform {
     private _rotation: number;
     private _direction: Vector;
 
-    constructor(position: Vector, rotation: number = 0, direction: Vector = VectorZero()) {
-        this._position = position;
-        this._rotation = rotation;
-        this._direction = direction;
-    }
-
     public get position()  : Vector { return this._position;  }
     public get rotation()  : number { return this._rotation;  }
     public get direction() : Vector { return this._direction; }
@@ -19,6 +13,12 @@ export default class Transform {
     public set position(vector  : Vector) { this._position = vector;   }
     public set rotation(radians : number) { this.setRotation(radians); }
     public set direction(vector : Vector) { this.setDirection(vector); }
+
+    constructor(position: Vector, rotation: number = 0, direction: Vector = VectorZero()) {
+        this._position = position;
+        this._rotation = rotation;
+        this._direction = direction;
+    }
     
     setRotation(radians: number) {
         this._rotation = radians;
