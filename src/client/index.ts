@@ -1,23 +1,19 @@
-import Camera from "./core/camera.js";
-import { lerp } from "../core/math.js";
 import { Mouse } from "./core/input/mouse.js";
 import { Keyboard, KeyboardKey } from "./core/input/keyboard.js";
 import Vector, { VectorZero } from "../core/vector.js";
 import { normalize } from "../core/vectorMath.js";
-import GameLoop from "./core/gameloop.js";
-import GameObject from "./core/gameObject.js";
-
-console.log("CLIENT WITH IMPORTED FILE: " + lerp(0, 100, 0.5));
+import Camera from "./core/game/camera.js";
+import GameObject from "./core/game/gameObject.js";
+import GameLoop from "./core/game/gameLoop.js";
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
-const camera: Camera = new Camera(canvas, 0, 2, 10);
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
 class CoordinateText extends GameObject {
-    render(context: CanvasRenderingContext2D, camera: Camera): void {
-        super.render(context, camera);
+    render(context: CanvasRenderingContext2D): void {
+        super.render(context);
 
         context.fillStyle = "black";
         context.fillText(`(${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)})`, 0, 0);
@@ -26,12 +22,12 @@ class CoordinateText extends GameObject {
 
 class Character extends GameObject {
     update(deltaTime: number) {
-        const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
+        const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
         this.rotation = Math.atan2(-(mousePos.y - this.position.y), (mousePos.x - this.position.x));
     }
 
-    render(context: CanvasRenderingContext2D, camera: Camera): void {
-        super.render(context, camera);
+    render(context: CanvasRenderingContext2D): void {
+        super.render(context);
 
         context.lineWidth = 2;
         context.fillStyle = "black";
@@ -64,8 +60,8 @@ class Zombie extends GameObject {
         })
     }
 
-    render(context: CanvasRenderingContext2D, camera: Camera): void {
-        super.render(context, camera);
+    render(context: CanvasRenderingContext2D): void {
+        super.render(context);
 
         const size: number = 5;
 
@@ -111,7 +107,7 @@ function update(deltaTime: number) {
         y: (normalizedDir.y * step),
     })
 
-    camera.position = player.position;
+    Camera.position = player.position;
 
     player.update(deltaTime);
     zombie.update(deltaTime, player);
@@ -124,14 +120,14 @@ function draw(deltaTime: number) {
 
     for (let x = -10; x <= 10; x++) {
         for (let y = -10; y <= 10; y++) {
-            new CoordinateText({ x: x, y: y }).render(context, camera);
+            new CoordinateText({ x: x, y: y }).render(context);
         }
     }
 
     // Mouse position displayer
-    const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
-    new CoordinateText(mousePos).render(context, camera);
+    const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
+    new CoordinateText(mousePos).render(context);
 
-    player.render(context, camera);
-    zombie.render(context, camera);
+    player.render(context);
+    zombie.render(context);
 }
