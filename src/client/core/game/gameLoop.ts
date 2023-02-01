@@ -1,7 +1,7 @@
-import { Mouse } from "../input/mouse.js";
-import { Keyboard } from "../input/keyboard.js";
-import Loop, { LoopAction } from "../../../core/loop.js";
 import Camera from "./camera.js";
+import Mouse from "../input/mouse.js";
+import Keyboard from "../input/keyboard.js";
+import Loop, { LoopAction } from "../../../core/loop.js";
 
 export default class GameLoop {
     private canvas: HTMLCanvasElement;

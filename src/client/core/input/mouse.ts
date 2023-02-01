@@ -1,7 +1,7 @@
 import Vector, { VectorZero } from "../../../core/vector.js";
 import { ButtonStateHandler } from "./buttonStateHandler.js";
 
-export class Mouse {
+export default class Mouse {
     private static buttonHandler: ButtonStateHandler = new ButtonStateHandler();
 
     private static lastState: undefined | MouseEvent = undefined;

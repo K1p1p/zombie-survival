@@ -7,7 +7,7 @@ export enum KeyboardKey {
     ArrowRight = "ArrowRight",
 }
 
-export class Keyboard {
+export default class Keyboard {
     private static buttonHandler: ButtonStateHandler = new ButtonStateHandler();
 
     public static init(document: Document) {
