@@ -15,8 +15,9 @@ export default class GameObject {
     render(context: CanvasRenderingContext2D, camera: Camera): void {
         const canvasPos: Vector = camera.projectWorldToPixels(this.position);
 
-        context.setTransform(1, 0, 0, 1, 0, 0); // Identity matrix
-        context.rotate(this.rotation);
+        //context.setTransform(1, 0, 0, 1, 0, 0); // Identity matrix
+        context.resetTransform();
         context.translate(canvasPos.x, canvasPos.y);
+        context.rotate(this.rotation);
     }
 }

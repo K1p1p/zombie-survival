@@ -23,6 +23,34 @@ class CoordinateText extends GameObject {
     }
 }
 
+class Character extends GameObject {
+    update(deltaTime: number) {
+        const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
+        this.rotation = Math.atan2(-(mousePos.y - this.position.y), (mousePos.x - this.position.x));
+    }
+
+    render(context: CanvasRenderingContext2D, camera: Camera): void {
+        super.render(context, camera);
+
+        context.lineWidth = 2;
+        context.fillStyle = "black";
+        context.strokeStyle = "black";
+
+        context.beginPath();
+        context.moveTo(0, 0)
+        context.lineTo(10, 0);
+        context.stroke();
+        context.closePath();
+
+        context.beginPath();
+        context.arc(0, 0, 5, 0, (2 * Math.PI));
+        context.fill();
+        context.closePath();
+    }
+}
+
+const player: Character = new Character(VectorZero());
+
 function update(deltaTime: number) {
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight)) { moveDirection.x += 1; }
@@ -34,8 +62,12 @@ function update(deltaTime: number) {
     const speed = 1;
     const step = (speed * deltaTime);
 
-    camera.position.x += (normalizedDir.x * step);
-    camera.position.y += (normalizedDir.y * step);
+    player.position.x += (normalizedDir.x * step);
+    player.position.y += (normalizedDir.y * step);
+
+    camera.position = player.position;
+
+    player.update(deltaTime);
 }
 
 function draw(deltaTime: number) {
@@ -52,4 +84,6 @@ function draw(deltaTime: number) {
     // Mouse position displayer
     const mousePos = camera.projectScreenToWorld(Mouse.getScreenPosition());
     new CoordinateText(mousePos).render(context, camera);
+
+    player.render(context, camera);
 }
