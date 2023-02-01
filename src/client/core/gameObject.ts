@@ -1,17 +1,8 @@
-import Vector, { VectorZero } from "../../core/vector.js";
+import Transform from "../../core/transform.js";
+import Vector from "../../core/vector.js";
 import Camera from "./camera.js";
 
-export default class GameObject {
-    position: Vector;
-    rotation: number; // Angle
-    direction: Vector;
-
-    constructor(position: Vector, rotation: number = 0, direction: Vector = VectorZero()) {
-        this.position = position;
-        this.rotation = rotation;
-        this.direction = direction;
-    }
-
+export default class GameObject extends Transform {
     render(context: CanvasRenderingContext2D, camera: Camera): void {
         const canvasPos: Vector = camera.projectWorldToPixels(this.position);
 
