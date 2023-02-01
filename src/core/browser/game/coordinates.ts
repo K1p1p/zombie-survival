@@ -1,4 +1,4 @@
-import Vector from "../../core/vector";
+import Vector from "../../vector.js";
 
 class Coordinates {
     public static pixelsPerMeter: number = Object.freeze(100);

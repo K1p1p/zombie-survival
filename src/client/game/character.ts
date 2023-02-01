@@ -1,6 +1,6 @@
-import Camera from "../core/game/camera.js";
-import GameObject from "../core/game/gameObject.js";
-import Mouse from "../core/input/mouse.js";
+import Camera from "../../core/browser/game/camera.js";
+import GameObject from "../../core/browser/game/gameObject.js";
+import Mouse from "../../core/browser/input/mouse.js";
 
 export default class Character extends GameObject {
     update(deltaTime: number) {
