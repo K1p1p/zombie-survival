@@ -3,7 +3,6 @@ import GameLoop from "../core/browser/game/gameLoop.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
 import Vector, { VectorZero } from "../core/vector.js";
-import { normalize } from "../core/vectorMath.js";
 import Character from "./game/character.js";
 import CoordinateText from "./game/coordinateText.js";
 import Zombie from "./game/zombie.js";
@@ -23,7 +22,7 @@ function update(deltaTime: number) {
     if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   ) || Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
     if(Keyboard.getKeyHold(KeyboardKey.ArrowDown ) || Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
 
-    const normalizedDir: Vector = normalize(moveDirection);
+    const normalizedDir: Vector = Vector.normalize(moveDirection);
     const speed = 1;
     const step = (speed * deltaTime);
 

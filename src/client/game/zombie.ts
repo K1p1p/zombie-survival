@@ -1,13 +1,12 @@
 import GameObject from "../../core/browser/game/gameObject.js";
 import Vector from "../../core/vector.js";
-import { normalize } from "../../core/vectorMath.js";
 import Character from "./character.js";
 
 export default class Zombie extends GameObject {
     update(deltaTime: number, player: Character) {
         this.lookAt(player.position);
 
-        const normalizedDir: Vector = normalize(this.direction);
+        const normalizedDir: Vector = Vector.normalize(this.direction);
         const speed = 0.5;
         const step = (speed * deltaTime);
 

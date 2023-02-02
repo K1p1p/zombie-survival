@@ -1,5 +1,4 @@
 import Vector, { VectorZero } from "./vector.js";
-import { normalize } from "./vectorMath.js";
 
 export default class Transform {
     private _position: Vector;
@@ -23,14 +22,14 @@ export default class Transform {
     setRotation(radians: number) {
         this._rotation = radians;
 
-        this._direction = normalize({
+        this._direction = Vector.normalize({
             x: Math.cos( radians),
             y: Math.sin(-radians)
         });
     }
 
     setDirection(dir: Vector) {
-        this._direction = normalize(dir);
+        this._direction = Vector.normalize(dir);
         this._rotation = Math.atan2(-this._direction.y, this._direction.x);
     }
 
