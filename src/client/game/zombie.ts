@@ -27,13 +27,13 @@ export default class Zombie extends GameObject {
 
         context.beginPath();
         context.moveTo(0, size)
-        context.lineTo(10, size);
+        context.lineTo((size * 2), size);
         context.stroke();
         context.closePath();
 
         context.beginPath();
         context.moveTo(0, -size)
-        context.lineTo(10, -size);
+        context.lineTo((size * 2), -size);
         context.stroke();
         context.closePath();
 
