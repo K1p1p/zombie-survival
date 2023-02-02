@@ -1,4 +1,4 @@
-import Vector, { VectorZero } from "../../vector.js";
+import Vector, { VectorZero } from "../../math/vector.js";
 import Coordinates from "./coordinates.js";
 
 export default class Camera {

@@ -1,4 +1,4 @@
-import Vector, { VectorZero } from "../../../core/vector.js";
+import Vector, { VectorZero } from "../../math/vector.js";
 import { ButtonStateHandler } from "./buttonStateHandler.js";
 
 export default class Mouse {

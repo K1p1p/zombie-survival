@@ -2,7 +2,7 @@ import Camera from "../core/browser/game/camera.js";
 import GameLoop from "../core/browser/game/gameLoop.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
-import Vector, { VectorZero } from "../core/vector.js";
+import Vector, { VectorZero } from "../core/math/vector.js";
 import Character from "./game/character.js";
 import CoordinateText from "./game/coordinateText.js";
 import Zombie from "./game/zombie.js";

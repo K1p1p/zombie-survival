@@ -1,5 +1,5 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import Vector from "../../core/vector.js";
+import Vector from "../../core/math/vector.js";
 import Character from "./character.js";
 
 export default class Zombie extends GameObject {

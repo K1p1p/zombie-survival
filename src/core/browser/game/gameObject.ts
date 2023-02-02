@@ -1,5 +1,5 @@
 import Transform from "../../transform.js";
-import Vector from "../../vector.js";
+import Vector from "../../math/vector.js";
 import Camera from "./camera.js";
 
 export default class GameObject extends Transform {
