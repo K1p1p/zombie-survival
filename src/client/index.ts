@@ -2,6 +2,7 @@ import Camera from "../core/browser/game/camera.js";
 import GameLoop from "../core/browser/game/gameLoop.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
+import Line from "../core/geometry/line.js";
 import Vector, { VectorZero } from "../core/math/vector.js";
 import Character from "./game/character.js";
 import CoordinateText from "./game/coordinateText.js";
@@ -12,10 +13,44 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
+const mapWidth: number = 20;
+const mapHeight: number = 20;
+
 const player: Character = new Character(VectorZero());
-const zombie: Zombie = new Zombie(VectorZero());
+const bullets: Line[] = [];
+const zombies: Zombie[] = [];
+setInterval(() => {
+    const pos: Vector = {
+        x: ((Math.random() * mapWidth) - (mapWidth / 2)),
+        y: ((Math.random() * mapHeight) - (mapHeight / 2)),
+    }
+    
+    zombies.push(new Zombie(pos));
+}, 1000);
 
 function update(deltaTime: number) {
+    // Clear bullets array
+    bullets.length = 0;
+
+    if(Mouse.getButtonDown(0)) {
+        const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
+
+        const bulletDir: Vector = Vector.normalize({
+            x: (mousePos.x - player.position.x),
+            y: (mousePos.y - player.position.y),
+        });
+
+        const bulletDistance: number = 5;
+
+        bullets.push({
+            start: player.position,
+            end: {
+                x: (player.position.x + (bulletDir.x * bulletDistance)),
+                y: (player.position.y + (bulletDir.y * bulletDistance)),
+            }
+        })
+    }
+
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
     if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft ) || Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
@@ -34,7 +69,18 @@ function update(deltaTime: number) {
     Camera.position = player.position;
 
     player.update(deltaTime);
-    zombie.update(deltaTime, player);
+    zombies.forEach(zombie => zombie.update(deltaTime, player));
+
+    bullets.forEach((bullet) => {
+        zombies.forEach((zombie, index) => {
+            if(Line.intersectsCircle(
+                { start: bullet.start, end: bullet.end }, 
+                { position: zombie.position, radius: 0.1 })
+            ) {
+                zombies.splice(index, 1);
+            }
+        });
+    });
 }
 
 function draw(deltaTime: number) {
@@ -42,8 +88,8 @@ function draw(deltaTime: number) {
     context.textAlign = "center";
     context.textBaseline = "middle";
 
-    for (let x = -10; x <= 10; x++) {
-        for (let y = -10; y <= 10; y++) {
+    for (let x = -(mapWidth / 2); x <= (mapWidth / 2); x++) {
+        for (let y = -(mapHeight / 2); y <= (mapHeight / 2); y++) {
             new CoordinateText({ x: x, y: y }).render(context);
         }
     }
@@ -52,6 +98,24 @@ function draw(deltaTime: number) {
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
     new CoordinateText(mousePos).render(context);
 
+    zombies.forEach(zombie => zombie.render(context));
+
+    bullets.forEach((bullet) => {
+        const start: Vector = Camera.projectWorldToPixels(bullet.start);
+        const end: Vector = Camera.projectWorldToPixels(bullet.end);
+
+        context.resetTransform();
+        context.translate(start.x, start.y);
+
+        context.lineWidth = 1;
+        context.strokeStyle = "blue";
+
+        context.beginPath();
+        context.moveTo(0, 0)
+        context.lineTo((end.x - start.x), (end.y - start.y));
+        context.stroke();
+        context.closePath();
+    });
+
     player.render(context);
-    zombie.render(context);
 }
