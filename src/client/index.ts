@@ -40,7 +40,7 @@ function update(deltaTime: number) {
             y: (mousePos.y - player.position.y),
         });
 
-        const bulletDistance: number = 5;
+        const bulletDistance: number = 8;
 
         bullets.push({
             start: player.position,
@@ -107,8 +107,8 @@ function draw(deltaTime: number) {
         context.resetTransform();
         context.translate(start.x, start.y);
 
-        context.lineWidth = 1;
-        context.strokeStyle = "blue";
+        context.lineWidth = 2;
+        context.strokeStyle = "orange";
 
         context.beginPath();
         context.moveTo(0, 0)
