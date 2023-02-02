@@ -1,13 +1,17 @@
-/* 
-    Handles input keys basic states
-*/
-
 export type KeyState = "preparePress" | "pressed" | "hold" | "prepareRelease" | "released"
 
+/** Handles input keys basic states. Checks all keys as lowercase. */
 export class ButtonStateHandler {
     private keys: { [index: string]: KeyState; } = {}; // Dictionary
 
+    /** Prevent uppercase and shift+key. Which kept button stuck */
+    private sanitizeKey(key: string): string {
+        return key.toLowerCase();
+    }
+
     onKeyDown(key: string) {
+        key = this.sanitizeKey(key); 
+
         const _key: undefined | KeyState = this.keys[key];
 
         if(_key === undefined) {
@@ -16,6 +20,8 @@ export class ButtonStateHandler {
     }
 
     onKeyUp(key: string) {
+        key = this.sanitizeKey(key); 
+
         this.keys[key] = "prepareRelease";
     }
 
@@ -48,14 +54,20 @@ export class ButtonStateHandler {
 
     // Getters
     getKeyDown(key: string): boolean {
+        key = this.sanitizeKey(key); 
+
         return this.keys[key] === "pressed";
     }
 
     getKeyHold(key: string): boolean {
+        key = this.sanitizeKey(key); 
+
         return this.keys[key] === "hold" || this.getKeyDown(key);
     }
 
     getKeyUp(key: string): boolean {
+        key = this.sanitizeKey(key); 
+
         return this.keys[key] === "released";
     }
     // --Getters

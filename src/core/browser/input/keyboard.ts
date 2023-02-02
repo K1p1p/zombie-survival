@@ -5,6 +5,11 @@ export enum KeyboardKey {
     ArrowLeft = "ArrowLeft",
     ArrowDown = "ArrowDown",
     ArrowRight = "ArrowRight",
+
+    W = "w",
+    A = "a",
+    S = "s",
+    D = "d",
 }
 
 export default class Keyboard {
