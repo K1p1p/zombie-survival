@@ -2,8 +2,8 @@ import Camera from "../core/browser/game/camera.js";
 import GameLoop from "../core/browser/game/gameLoop.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
-import Line from "../core/geometry/line.js";
 import Vector, { VectorZero } from "../core/math/vector.js";
+import { Bullet } from "./game/bullet.js";
 import Character from "./game/character.js";
 import CoordinateText from "./game/coordinateText.js";
 import Zombie from "./game/zombie.js";
@@ -17,7 +17,7 @@ const mapWidth: number = 20;
 const mapHeight: number = 20;
 
 const player: Character = new Character(VectorZero());
-const bullets: Line[] = [];
+const bullets: Bullet[] = [];
 const zombies: Zombie[] = [];
 setInterval(() => {
     const pos: Vector = {
@@ -40,15 +40,7 @@ function update(deltaTime: number) {
             y: (mousePos.y - player.position.y),
         });
 
-        const bulletDistance: number = 8;
-
-        bullets.push({
-            start: player.position,
-            end: {
-                x: (player.position.x + (bulletDir.x * bulletDistance)),
-                y: (player.position.y + (bulletDir.y * bulletDistance)),
-            }
-        })
+        bullets.push(new Bullet(player.position, bulletDir, 8, zombies))
     }
 
     const moveDirection: Vector = VectorZero();
@@ -70,17 +62,6 @@ function update(deltaTime: number) {
 
     player.update(deltaTime);
     zombies.forEach(zombie => zombie.update(deltaTime, player));
-
-    bullets.forEach((bullet) => {
-        zombies.forEach((zombie, index) => {
-            if(Line.intersectsCircle(
-                { start: bullet.start, end: bullet.end }, 
-                { position: zombie.position, radius: 0.1 })
-            ) {
-                zombies.splice(index, 1);
-            }
-        });
-    });
 }
 
 function draw(deltaTime: number) {
@@ -98,24 +79,8 @@ function draw(deltaTime: number) {
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
     new CoordinateText(mousePos).render(context);
 
+    bullets.forEach(bullet => bullet.render(context));
     zombies.forEach(zombie => zombie.render(context));
-
-    bullets.forEach((bullet) => {
-        const start: Vector = Camera.projectWorldToPixels(bullet.start);
-        const end: Vector = Camera.projectWorldToPixels(bullet.end);
-
-        context.resetTransform();
-        context.translate(start.x, start.y);
-
-        context.lineWidth = 2;
-        context.strokeStyle = "orange";
-
-        context.beginPath();
-        context.moveTo(0, 0)
-        context.lineTo((end.x - start.x), (end.y - start.y));
-        context.stroke();
-        context.closePath();
-    });
 
     player.render(context);
 }
