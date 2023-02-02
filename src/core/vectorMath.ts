@@ -14,8 +14,7 @@ export function moveTowards(current: Vector, target: Vector, maxDelta) {
 }
 
 export function magnitude(vector: Vector): number {
-    return (Math.abs(vector.x) + Math.abs(vector.y));
-    // return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y)); // SAME THING ???
+    return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y)); 
 }
 
 export function normalize(vector: Vector): Vector {
