@@ -1,5 +1,6 @@
 import Camera from "../core/browser/game/camera.js";
 import GameLoop from "../core/browser/game/gameLoop.js";
+import FPSCounter from "../core/browser/helper/fpsCounter.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
 import Vector, { VectorZero } from "../core/math/vector.js";
@@ -12,6 +13,8 @@ const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanva
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
+
+const performance: FPSCounter = new FPSCounter();
 
 const mapWidth: number = 20;
 const mapHeight: number = 20;
@@ -65,9 +68,7 @@ function update(deltaTime: number) {
 }
 
 function draw(deltaTime: number) {
-    context.font = "12px Arial";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
+    performance.update(deltaTime);
 
     for (let x = -(mapWidth / 2); x <= (mapWidth / 2); x++) {
         for (let y = -(mapHeight / 2); y <= (mapHeight / 2); y++) {
@@ -83,4 +84,10 @@ function draw(deltaTime: number) {
     zombies.forEach(zombie => zombie.render(context));
 
     player.render(context);
+
+    context.font = "15px Arial";
+    context.textAlign = "right";
+    context.textBaseline = "bottom";
+    context.resetTransform();
+    context.fillText(`FPS: ${performance.getFPS()}`, document.body.clientWidth, document.body.clientHeight);
 }
