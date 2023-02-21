@@ -1,19 +1,9 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import Vector from "../../core/math/vector.js";
-import Character from "./character.js";
+import TransformModel from "../../model/transform.js";
 
 export default class Zombie extends GameObject {
-    update(deltaTime: number, player: Character) {
-        this.lookAt(player.position);
-
-        const normalizedDir: Vector = Vector.normalize(this.direction);
-        const speed = 0.5;
-        const step = (speed * deltaTime);
-
-        this.translate({
-            x: (normalizedDir.x * step),
-            y: (normalizedDir.y * step),
-        })
+    constructor(data: TransformModel) {
+        super(data.position, data.rotation, data.direction);
     }
 
     render(context: CanvasRenderingContext2D): void {

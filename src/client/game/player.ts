@@ -1,11 +1,9 @@
-import Camera from "../../core/browser/game/camera.js";
 import GameObject from "../../core/browser/game/gameObject.js";
-import Mouse from "../../core/browser/input/mouse.js";
+import TransformModel from "../../model/transform.js";
 
-export default class Character extends GameObject {
-    update(deltaTime: number) {
-        const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
-        this.rotation = Math.atan2(-(mousePos.y - this.position.y), (mousePos.x - this.position.x));
+export default class Player extends GameObject {
+    constructor(data: TransformModel) {
+        super(data.position, data.rotation, data.direction);
     }
 
     render(context: CanvasRenderingContext2D): void {
