@@ -7,18 +7,20 @@ import BulletModel from "../../dto/bullet.js";
 import INetworkObject from "../networkObject.js";
 
 export default class Bullet extends Transform implements INetworkObject {
-    public endPosition: Vector;
+    private endPosition: Vector;
     private maxDistance: number = 8;
 
-    constructor(position: Vector, direction: Vector, zombies: Zombie[]) {
+    constructor(position: Vector, direction: Vector) {
         super(position);
 
         this.setDirection(direction);
+    }
 
+    collisionCheck(zombies: Zombie[]) {
         // Project trajectory
         this.endPosition = {
-            x: (position.x + (direction.x * this.maxDistance)),
-            y: (position.y + (direction.y * this.maxDistance)),
+            x: (this.position.x + (this.direction.x * this.maxDistance)),
+            y: (this.position.y + (this.direction.y * this.maxDistance)),
         }
 
         // Zombie vs Bullet hit-test
@@ -60,14 +62,16 @@ export default class Bullet extends Transform implements INetworkObject {
         }
     }
 
+    getEndPosition(): Vector {
+        return this.endPosition;
+    }
+
     toModel(): BulletModel {
-        const payload: BulletModel = {
+        return {
             position: this.position,
             rotation: this.rotation,
             direction: this.direction,
             endPosition: this.endPosition
-        }
-
-        return payload;
+        };
     }
 }

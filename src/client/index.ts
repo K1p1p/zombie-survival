@@ -28,8 +28,14 @@ function update(deltaTime: number) {
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
 
     if(Mouse.getButtonDown(0)) {
-        mockServer.playerShoot();
+        if(serverData.player.gun.ammo === 0) {
+            mockServer.playerReload();
+        } else {
+            mockServer.playerShoot();
+        }
     }
+
+    if(Keyboard.getKeyHold(KeyboardKey.R)) { mockServer.playerReload(); }
 
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }

@@ -31,18 +31,20 @@ import Bullet from '../server/game/bullet.js';
 import Zombie from '../server/game/zombie.js';
 import BulletModel from '../dto/bullet.js';
 import TransformModel from '../dto/transform.js';
+import PlayerModel from '../dto/player.js';
 
 export interface PlayerActionBuffer {
     rotation: number;
     moveDirection: Vector;
     shoot: boolean;
+    reload: boolean;
 }
 
 export type ServerUpdateCallback = ((data: ServerData) => void);
 export type ServerData = {
     mapWidth: number;
     mapHeight: number;
-    player: TransformModel;
+    player: PlayerModel;
     bullets: BulletModel[];
     zombies: TransformModel[];
 }
@@ -57,7 +59,8 @@ export default class MockServer {
     private playerActionBuffer: PlayerActionBuffer = {
         moveDirection: VectorZero(),
         rotation: 0,
-        shoot: false
+        shoot: false,
+        reload: false
     }
 
     private bullets: Bullet[] = [];
@@ -85,8 +88,18 @@ export default class MockServer {
         this.player.update(deltaTime, this.playerActionBuffer);
         this.zombies.forEach(zombie => zombie.update(deltaTime, this.player));
 
+        if(this.playerActionBuffer.reload) {
+            this.player.reload();
+        }
+
         if(this.playerActionBuffer.shoot) {
-            this.bullets.push(new Bullet(this.player.position, this.player.direction, this.zombies));
+            const newBullet = this.player.shoot();
+
+            if(newBullet) {
+                newBullet.collisionCheck(this.zombies);
+
+                this.bullets.push(newBullet);
+            }
         }
 
         // Send data to client ---------------------
@@ -100,8 +113,9 @@ export default class MockServer {
 
         // Clear action buffer ---------------------
         this.playerActionBuffer.moveDirection = VectorZero();
-        //this.playerActionBuffer.rotation = DO_NOT_CHANGE; // Keep rotation!
+        //this.playerActionBuffer.rotation = DO_NOT_CHANGE; // Keep rotation! Otherwise player rotates to zero when not moving!
         this.playerActionBuffer.shoot = false;
+        this.playerActionBuffer.reload = false;
     }
 
     // Player requests
@@ -112,6 +126,10 @@ export default class MockServer {
 
     public playerShoot() {
         this.playerActionBuffer.shoot = true;
+    }
+
+    public playerReload() {
+        this.playerActionBuffer.reload = true;
     }
 
     public playerSetRotation(radians: number) {

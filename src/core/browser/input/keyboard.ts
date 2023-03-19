@@ -10,6 +10,8 @@ export enum KeyboardKey {
     A = "a",
     S = "s",
     D = "d",
+
+    R = "r",
 }
 
 export default class Keyboard {
