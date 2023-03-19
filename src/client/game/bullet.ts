@@ -1,7 +1,7 @@
 import Camera from "../../core/browser/game/camera.js";
 import GameObject from "../../core/browser/game/gameObject.js";
 import Vector, { VectorZero } from "../../core/math/vector.js";
-import BulletModel from "../../model/bullet.js";
+import BulletModel from "../../dto/bullet.js";
 
 export default class Bullet extends GameObject {
     private endPosition: Vector;

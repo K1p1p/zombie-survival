@@ -1,7 +1,7 @@
 import NPC from "./npc.js";
 import Transform from "../../core/transform.js";
 import Vector from "../../core/math/vector.js";
-import TransformModel from "../../model/transform.js";
+import TransformModel from "../../dto/transform.js";
 
 // Common zombie
 export default class Zombie extends NPC {

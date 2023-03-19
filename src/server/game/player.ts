@@ -1,6 +1,6 @@
 import Vector from "../../core/math/vector.js";
 import Character from "./character.js";
-import TransformModel from "../../model/transform.js";
+import TransformModel from "../../dto/transform.js";
 import { PlayerActionBuffer } from "../index.js";
 
 export default class Player extends Character {

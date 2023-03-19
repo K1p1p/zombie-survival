@@ -1,5 +1,5 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import TransformModel from "../../model/transform.js";
+import TransformModel from "../../dto/transform.js";
 
 export default class Zombie extends GameObject {
     constructor(data: TransformModel) {

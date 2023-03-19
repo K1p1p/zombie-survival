@@ -3,7 +3,7 @@ import Transform from "../../core/transform.js";
 import Zombie from "./zombie.js";
 import Circle from "../../core/geometry/circle.js";
 import Line from "../../core/geometry/line.js";
-import BulletModel from "../../model/bullet.js";
+import BulletModel from "../../dto/bullet.js";
 import INetworkObject from "../networkObject.js";
 
 export default class Bullet extends Transform implements INetworkObject {

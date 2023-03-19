@@ -29,8 +29,8 @@ import Vector, { VectorZero } from '../core/math/vector.js';
 import Player from '../server/game/player.js';
 import Bullet from '../server/game/bullet.js';
 import Zombie from '../server/game/zombie.js';
-import BulletModel from '../model/bullet.js';
-import TransformModel from '../model/transform.js';
+import BulletModel from '../dto/bullet.js';
+import TransformModel from '../dto/transform.js';
 
 export interface PlayerActionBuffer {
     rotation: number;
