@@ -1,41 +1,37 @@
 import Camera from "../core/browser/game/camera.js";
 import GameLoop from "../core/browser/game/gameLoop.js";
-import FPSCounter from "../core/browser/helper/fpsCounter.js";
 import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
 import Mouse from "../core/browser/input/mouse.js";
 import Vector, { VectorZero } from "../core/math/vector.js";
 
 import CoordinateText from "./game/coordinateText.js";
 
+import Gun    from "./game/gun.js";
 import Player from "./game/player.js";
 import Bullet from "./game/bullet.js";
 import Zombie from "./game/zombie.js";
 
 import MockServer, { ServerData } from "../server/index.js";
 
+import GunUI from "./ui/gunUI.js";
+import FpsUI from "./ui/fpsUI.js";
+
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
-const performance: FPSCounter = new FPSCounter();
-
 let player: (Player | null) = null;
+let gun: (Gun | null) = null;
+
+const FPS: FpsUI = new FpsUI();
+const gunUI: GunUI = new GunUI();
 
 function update(deltaTime: number) {
+    // Player update -----------
     if(!player) { return; }
 
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
-
-    if(Mouse.getButtonDown(0)) {
-        if(serverData.player.gun.ammo === 0) {
-            mockServer.playerReload();
-        } else {
-            mockServer.playerShoot();
-        }
-    }
-
-    if(Keyboard.getKeyHold(KeyboardKey.R)) { mockServer.playerReload(); }
 
     const moveDirection: Vector = VectorZero();
     if(Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
@@ -52,11 +48,22 @@ function update(deltaTime: number) {
     mockServer.playerSetRotation(playerRotation);
 
     Camera.position = player.position;
+
+    // Gun update -----------
+    if(!gun) { return; }
+
+    if(Keyboard.getKeyHold(KeyboardKey.R)) { mockServer.playerReload(); }
+
+    if(Mouse.getButtonDown(0)) {
+        if(gun.state.ammo === 0) {
+            mockServer.playerReload();
+        } else {
+            mockServer.playerShoot();
+        }
+    }
 }
 
 function draw(deltaTime: number) {
-    performance.update(deltaTime);
-
     if(!player) { return; }
 
     for (let x = -(serverData.mapWidth / 2); x <= (serverData.mapWidth / 2); x++) {
@@ -74,13 +81,9 @@ function draw(deltaTime: number) {
 
     player.render(context);
 
-    context.font = "15px Arial";
-    context.textAlign = "right";
-    context.textBaseline = "bottom";
-    context.resetTransform();
-    context.fillText(`FPS: ${performance.getFPS()}`, document.body.clientWidth, document.body.clientHeight);
+    gunUI.render(context, gun.state);
+    FPS.render(context, deltaTime);
 }
-
 
 // Server --------------------
 const mockServer: MockServer = new MockServer(onServerUpdate);
@@ -89,4 +92,11 @@ function onServerUpdate(data: ServerData) {
     serverData = data;
     
     player = new Player(serverData.player);
+
+    // TODO: Make a better logic for it
+    if(gun) {
+        gun.update(serverData.player.gun);
+    } else {
+        gun = new Gun(serverData.player.gun);
+    }
 }
