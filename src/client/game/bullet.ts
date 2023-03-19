@@ -1,7 +1,8 @@
 import Camera from "../../core/browser/game/camera.js";
 import GameObject from "../../core/browser/game/gameObject.js";
-import Vector, { VectorZero } from "../../core/math/vector.js";
+import Vector from "../../core/math/vector.js";
 import BulletModel from "../../dto/bullet.js";
+import SoundManager from "./soundManager.js";
 
 export default class Bullet extends GameObject {
     private endPosition: Vector;
@@ -10,6 +11,8 @@ export default class Bullet extends GameObject {
         super(data.position, data.rotation, data.direction);
 
         this.endPosition = data.endPosition;
+        
+        SoundManager.playGunshot();
     }
 
     render(context: CanvasRenderingContext2D): void {

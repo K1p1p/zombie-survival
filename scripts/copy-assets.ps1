@@ -1,0 +1,1 @@
+Copy-Item -Path src/client/sfx -Destination dist/client -Recurse
