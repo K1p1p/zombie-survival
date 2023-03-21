@@ -8,7 +8,11 @@ export default class Bullet extends GameObject {
     private endPosition: Vector;
 
     constructor(data: BulletModel) {
-        super(data.position, data.rotation, data.direction);
+        super(
+            data.transform.position, 
+            data.transform.rotation, 
+            data.transform.direction
+        );
 
         this.endPosition = data.endPosition;
         

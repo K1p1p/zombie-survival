@@ -68,9 +68,11 @@ export default class Bullet extends Transform implements INetworkObject {
 
     toModel(): BulletModel {
         return {
-            position: this.position,
-            rotation: this.rotation,
-            direction: this.direction,
+            transform: {
+                position: this.position,
+                rotation: this.rotation,
+                direction: this.direction
+            },
             endPosition: this.endPosition
         };
     }

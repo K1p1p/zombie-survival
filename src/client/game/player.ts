@@ -1,9 +1,13 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import TransformModel from "../../dto/transform.js";
+import PlayerModel from "../../dto/player.js";
 
 export default class Player extends GameObject {
-    constructor(data: TransformModel) {
-        super(data.position, data.rotation, data.direction);
+    constructor(data: PlayerModel) {
+        super(
+            data.transform.position, 
+            data.transform.rotation, 
+            data.transform.direction
+        );
     }
 
     render(context: CanvasRenderingContext2D): void {
