@@ -30,8 +30,8 @@ import Player from '../server/game/player.js';
 import Bullet from '../server/game/bullet.js';
 import Zombie from '../server/game/zombie.js';
 import BulletModel from '../dto/bullet.js';
-import TransformModel from '../dto/transform.js';
 import PlayerModel from '../dto/player.js';
+import ZombieModel from '../dto/zombie.js';
 
 export interface PlayerActionBuffer {
     rotation: number;
@@ -46,7 +46,7 @@ export type ServerData = {
     mapHeight: number;
     player: PlayerModel;
     bullets: BulletModel[];
-    zombies: TransformModel[];
+    zombies: ZombieModel[];
 }
 
 export default class MockServer {
@@ -108,7 +108,7 @@ export default class MockServer {
             mapHeight: this.mapHeight,
             player: this.player.toModel(),
             bullets: this.bullets.map<BulletModel>(item => item.toModel()),
-            zombies: this.zombies.map<TransformModel>(item => item.toModel())
+            zombies: this.zombies.map<ZombieModel>(item => item.toModel())
         }))
 
         // Clear action buffer ---------------------

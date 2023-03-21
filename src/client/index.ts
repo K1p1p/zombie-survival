@@ -20,7 +20,9 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
-let player: Player = new Player({
+const zombies: { [index: string]: Zombie; } = {};
+
+const player: Player = new Player({
     gun: {
         ammo: 0,
         ammoCapacity: 0,
@@ -87,7 +89,11 @@ function draw(deltaTime: number) {
     new CoordinateText(mousePos).render(context);
 
     serverData.bullets.forEach(item => new Bullet(item).render(context));
-    serverData.zombies.forEach(item => new Zombie(item).render(context));
+
+    // Iterate over zombies dictionary
+    for (let key in zombies) {
+        zombies[key].render(context);
+    }
 
     player.render(context);
 
@@ -102,4 +108,24 @@ function onServerUpdate(data: string) {
     serverData = (JSON.parse(data) as ServerData);
 
     player.updateState(serverData.player);
+
+    // Create/Update zombies
+    serverData.zombies.forEach((zombieData) => {
+        const zombie = zombies[zombieData.id];
+
+        if(zombie) {
+            zombie.updateState(zombieData)
+        } else {
+            zombies[zombieData.id] = new Zombie(zombieData);
+        }
+    });
+
+    // [Workaround] Clear zombies destroyed in server (The ones which there's no data to update)
+    for (let key in zombies) {
+        const zombie = serverData.zombies.find((item) => (item.id === key));
+
+        if(!zombie) {
+            delete zombies[key];
+        }  
+    }
 }

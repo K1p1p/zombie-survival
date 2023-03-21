@@ -1,9 +1,22 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import TransformModel from "../../dto/transform.js";
+import ZombieModel from "../../dto/zombie";
+import ModelStateHandler from "../modelStateHandler.js";
 
 export default class Zombie extends GameObject {
-    constructor(data: TransformModel) {
-        super(data.position, data.rotation, data.direction);
+    public state: ModelStateHandler<ZombieModel>;
+
+    constructor(data: ZombieModel) {
+        super(data.transform.position, data.transform.rotation);
+
+        this.state = new ModelStateHandler<ZombieModel>(data);
+    }
+
+    public updateState(newState: ZombieModel) {
+        this.state.setState(newState);
+
+        this.position = newState.transform.position;
+        this.direction = newState.transform.direction;
+        this.rotation = newState.transform.rotation;
     }
 
     render(context: CanvasRenderingContext2D): void {

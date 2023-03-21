@@ -1,13 +1,12 @@
 import NPC from "./npc.js";
 import Transform from "../../core/transform.js";
 import Vector from "../../core/math/vector.js";
-import TransformModel from "../../dto/transform.js";
+import ZombieModel from "../../dto/zombie";
 
 // Common zombie
 export default class Zombie extends NPC {
-    protected id: string = "zombie_id";
+    public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
 
-    protected hp: number = 1;
     protected speed: number = 0.5;
 
     update(deltaTime: number, player: Transform) {
@@ -23,11 +22,14 @@ export default class Zombie extends NPC {
         })
     }
 
-    toModel(): TransformModel {
-        const payload: TransformModel = {
-            position: this.position,
-            rotation: this.rotation,
-            direction: this.direction
+    toModel(): ZombieModel {
+        const payload: ZombieModel = {
+            id: this.id,
+            transform: {
+                position: this.position,
+                rotation: this.rotation,
+                direction: this.direction
+            }
         }
 
         return payload;
