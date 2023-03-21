@@ -2,7 +2,7 @@ export default class Vector {
     x: number;
     y: number;
 
-    public static moveTowards(current: Vector, target: Vector, maxDelta) {
+    public static moveTowards(current: Vector, target: Vector, maxDelta): Vector {
         const deltaX = (target.x - current.x);
         const deltaY = (target.y - current.y);
         const magnitude = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));

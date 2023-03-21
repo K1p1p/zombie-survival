@@ -40,7 +40,7 @@ export interface PlayerActionBuffer {
     reload: boolean;
 }
 
-export type ServerUpdateCallback = ((data: ServerData) => void);
+export type ServerUpdateCallback = ((data: string) => void);
 export type ServerData = {
     mapWidth: number;
     mapHeight: number;
@@ -103,13 +103,13 @@ export default class MockServer {
         }
 
         // Send data to client ---------------------
-        this.updateCallback({
+        this.updateCallback(JSON.stringify({
             mapWidth: this.mapWidth,
             mapHeight: this.mapHeight,
             player: this.player.toModel(),
             bullets: this.bullets.map<BulletModel>(item => item.toModel()),
             zombies: this.zombies.map<TransformModel>(item => item.toModel())
-        })
+        }))
 
         // Clear action buffer ---------------------
         this.playerActionBuffer.moveDirection = VectorZero();

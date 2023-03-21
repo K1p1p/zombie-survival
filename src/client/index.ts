@@ -6,7 +6,6 @@ import Vector, { VectorZero } from "../core/math/vector.js";
 
 import CoordinateText from "./game/coordinateText.js";
 
-import Gun    from "./game/gun.js";
 import Player from "./game/player.js";
 import Bullet from "./game/bullet.js";
 import Zombie from "./game/zombie.js";
@@ -21,8 +20,18 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
-let player: (Player | null) = null;
-let gun: (Gun | null) = null;
+let player: Player = new Player({
+    gun: {
+        ammo: 0,
+        ammoCapacity: 0,
+        isReloading: false
+    },
+    transform: {
+        direction: VectorZero(),
+        position: VectorZero(),
+        rotation: 0
+    }
+});
 
 const FPS: FpsUI = new FpsUI();
 const gunUI: GunUI = new GunUI();
@@ -50,12 +59,12 @@ function update(deltaTime: number) {
     Camera.position = player.position;
 
     // Gun update -----------
-    if(!gun) { return; }
+    if(!player.gun) { return; }
 
     if(Keyboard.getKeyHold(KeyboardKey.R)) { mockServer.playerReload(); }
 
     if(Mouse.getButtonDown(0)) {
-        if(gun.state.ammo === 0) {
+        if(player.gun.getAmmo() === 0) {
             mockServer.playerReload();
         } else {
             mockServer.playerShoot();
@@ -64,6 +73,7 @@ function update(deltaTime: number) {
 }
 
 function draw(deltaTime: number) {
+    if(!serverData) { return; }
     if(!player) { return; }
 
     for (let x = -(serverData.mapWidth / 2); x <= (serverData.mapWidth / 2); x++) {
@@ -81,22 +91,15 @@ function draw(deltaTime: number) {
 
     player.render(context);
 
-    gunUI.render(context, gun.state);
+    gunUI.render(context, player.gun.state.current);
     FPS.render(context, deltaTime);
 }
 
 // Server --------------------
 const mockServer: MockServer = new MockServer(onServerUpdate);
 let serverData: ServerData;
-function onServerUpdate(data: ServerData) {
-    serverData = data;
-    
-    player = new Player(serverData.player);
+function onServerUpdate(data: string) {
+    serverData = (JSON.parse(data) as ServerData);
 
-    // TODO: Make a better logic for it
-    if(gun) {
-        gun.update(serverData.player.gun);
-    } else {
-        gun = new Gun(serverData.player.gun);
-    }
+    player.updateState(serverData.player);
 }

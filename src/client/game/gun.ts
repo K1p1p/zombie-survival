@@ -1,22 +1,24 @@
 import GunModel from "../../dto/gun";
+import ModelStateHandler from "../modelStateHandler.js";
 import SoundManager from "./soundManager.js";
 
 export default class Gun {
-    public state: GunModel;
-    private lastState: GunModel;
+    public state: ModelStateHandler<GunModel>;
 
     constructor(data: GunModel) {
-        this.state = data;
-        this.lastState = this.state;
+        this.state = new ModelStateHandler<GunModel>(data);
     }
 
-    public update(newState: GunModel) {
-        this.lastState = this.state;
-        this.state = newState;
+    public updateState(newState: GunModel) {
+        this.state.setState(newState);
 
         // Finished reloading
-        if(!this.state.isReloading && this.lastState.isReloading) {
+        if(!this.state.current.isReloading && this.state.last.isReloading) {
             SoundManager.playReload();
         }
+    }
+
+    public getAmmo() : number {
+        return this.state.current.ammo;
     }
 }
