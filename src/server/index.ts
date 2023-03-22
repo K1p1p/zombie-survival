@@ -34,7 +34,7 @@ import PlayerModel from '../dto/player.js';
 import ZombieModel from '../dto/zombie.js';
 import PlayerActionRequestModel from '../dto/playerActionRequest.js';
 
-export type ServerUpdateCallback = ((data: string) => void);
+export type ServerMessageCallback = ((data: string) => void);
 export type ServerData = {
     mapWidth: number;
     mapHeight: number;
@@ -48,22 +48,15 @@ export default class MockServer {
     private mapHeight: number = 20;
     
     private logicLoop: Loop = new Loop(60, this.update.bind(this));
-    
-    private player: Player = new Player(VectorZero());
-    private playerActionRequest: PlayerActionRequestModel = {
-        moveDirection: VectorZero(),
-        rotation: 0,
-        shoot: false,
-        reload: false
-    }
 
+    private players: Player[] = [ new Player(VectorZero()), new Player({ x: 1, y: 1 }) ];
     private bullets: Bullet[] = [];
     private zombies: Zombie[] = [];
 
-    private updateCallback: ServerUpdateCallback;
+    private sendMessageToClient: ServerMessageCallback;
 
-    constructor(updateCallback: ServerUpdateCallback) {
-        this.updateCallback = updateCallback;
+    constructor(updateCallback: ServerMessageCallback) {
+        this.sendMessageToClient = updateCallback;
 
         setInterval(() => {
             const pos: Vector = {
@@ -78,44 +71,36 @@ export default class MockServer {
     private update(deltaTime: number) {
         // Clear bullets array
         this.bullets.length = 0;
-        
-        this.player.update(deltaTime, this.playerActionRequest);
-        this.zombies.forEach(zombie => zombie.update(deltaTime, this.player));
 
-        if(this.playerActionRequest.reload) {
-            this.player.reload();
-        }
-
-        if(this.playerActionRequest.shoot) {
-            const newBullet = this.player.shoot();
-
-            if(newBullet) {
-                newBullet.collisionCheck(this.zombies);
-
-                this.bullets.push(newBullet);
-            }
-        }
+        this.players.forEach(player => player.update(deltaTime, this));
+        this.zombies.forEach(zombie => zombie.update(deltaTime, this.getMockPlayer()));
 
         // Send data to client ---------------------
-        this.updateCallback(JSON.stringify({
+        this.sendMessageToClient(JSON.stringify({
             mapWidth: this.mapWidth,
             mapHeight: this.mapHeight,
-            player: this.player.toModel(),
+            player: this.getMockPlayer().toModel(),
             bullets: this.bullets.map<BulletModel>(item => item.toModel()),
             zombies: this.zombies.map<ZombieModel>(item => item.toModel())
         }))
+    }
 
-        // Clear player action buffer ---------------------
-        this.playerActionRequest.moveDirection = VectorZero();
-        //this.playerActionBuffer.rotation = DO_NOT_CHANGE; // Keep rotation! Otherwise player rotates to zero when not moving!
-        this.playerActionRequest.shoot = false;
-        this.playerActionRequest.reload = false;
+    createBullet(newBullet: Bullet) {
+        if(newBullet) {
+            newBullet.collisionCheck(this.zombies);
+
+            this.bullets.push(newBullet);
+        }
     }
 
     // Handle player requests
     public clientMessage(data: string) {
-        // Buffer player actions 
-        this.playerActionRequest = JSON.parse(data) as PlayerActionRequestModel;
-        this.playerActionRequest.moveDirection = Vector.normalize(this.playerActionRequest.moveDirection); // Sanitize input
+        const clientData = JSON.parse(data) as PlayerActionRequestModel;
+        this.getMockPlayer().clientUpdate(clientData);
+    }
+
+    // [TODO] [Workaround] Due only simulating multiple players, return only the first one
+    getMockPlayer(): Player {
+        return this.players[0];
     }
 }
