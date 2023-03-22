@@ -15,6 +15,8 @@ import MockServer, { ServerData } from "../server/index.js";
 import GunUI from "./ui/gunUI.js";
 import FpsUI from "./ui/fpsUI.js";
 
+import PlayerActionRequestModel from "../dto/playerActionRequest.js";
+
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
@@ -34,6 +36,12 @@ const player: Player = new Player({
         rotation: 0
     }
 });
+const playerRequest: PlayerActionRequestModel = {
+    moveDirection: VectorZero(),
+    rotation: 0,
+    shoot: false,
+    reload: false
+}
 
 const FPS: FpsUI = new FpsUI();
 const gunUI: GunUI = new GunUI();
@@ -55,23 +63,26 @@ function update(deltaTime: number) {
          (mousePos.x - player.position.x)
     );
 
-    mockServer.playerMove(moveDirection);
-    mockServer.playerSetRotation(playerRotation);
+    playerRequest.moveDirection = moveDirection;
+    playerRequest.rotation = playerRotation;
 
     Camera.position = player.position;
 
     // Gun update -----------
     if(!player.gun) { return; }
 
-    if(Keyboard.getKeyHold(KeyboardKey.R)) { mockServer.playerReload(); }
+    if(Keyboard.getKeyHold(KeyboardKey.R)) { playerRequest.reload = true; }
 
     if(Mouse.getButtonDown(0)) {
         if(player.gun.getAmmo() === 0) {
-            mockServer.playerReload();
+            playerRequest.reload = true;
         } else {
-            mockServer.playerShoot();
+            playerRequest.shoot = true;
         }
     }
+
+    // Send request to server
+    sendRequestToServer();
 }
 
 function draw(deltaTime: number) {
@@ -101,10 +112,20 @@ function draw(deltaTime: number) {
     FPS.render(context, deltaTime);
 }
 
+// Request --------------------
+function sendRequestToServer() {
+    mockServer.clientMessage(JSON.stringify(playerRequest));
+
+    // Reset request buffer
+    playerRequest.moveDirection = VectorZero();
+    playerRequest.shoot = false;
+    playerRequest.reload = false;
+}
+
 // Server --------------------
-const mockServer: MockServer = new MockServer(onServerUpdate);
+const mockServer: MockServer = new MockServer(onServerMessage);
 let serverData: ServerData;
-function onServerUpdate(data: string) {
+function onServerMessage(data: string) {
     serverData = (JSON.parse(data) as ServerData);
 
     player.updateState(serverData.player);
@@ -120,11 +141,11 @@ function onServerUpdate(data: string) {
         }
     });
 
-    // [Workaround] Clear zombies destroyed in server (The ones which there's no data to update)
+    // Destroy zombie entities which were not updated in the last 50ms since last server update
     for (let key in zombies) {
-        const zombie = serverData.zombies.find((item) => (item.id === key));
+        const lastUpdate = zombies[key].state.lastUpdate;
 
-        if(!zombie) {
+        if((Date.now() - lastUpdate) > 50) {
             delete zombies[key];
         }  
     }

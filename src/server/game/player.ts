@@ -1,21 +1,19 @@
 import Vector from "../../core/math/vector.js";
 import Character from "./character.js";
-import { PlayerActionBuffer } from "../index.js";
 import Gun from "./gun.js";
 import Bullet from "./bullet.js";
 import PlayerModel from "../../dto/player";
+import PlayerActionRequestModel from "../../dto/playerActionRequest.js";
 
 export default class Player extends Character {
-    protected id: string;
-    public get uuid(): string { return this.uuid; }
+    public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
 
     protected speed: number = 1;
     protected gun: Gun;
 
-    constructor(uuid: string, position: Vector, rotation?: number, direction?: Vector) {
+    constructor(position: Vector, rotation?: number, direction?: Vector) {
         super(position, rotation, direction);
 
-        this.id = uuid;
         this.gun = new Gun(this);
     }
 
@@ -27,8 +25,8 @@ export default class Player extends Character {
         this.gun.reload();
     }
 
-    update(deltaTime: number, playerActionBuffer: PlayerActionBuffer) {
-        const normalizedDir: Vector = Vector.normalize(playerActionBuffer.moveDirection);
+    update(deltaTime: number, data: PlayerActionRequestModel) {
+        const normalizedDir: Vector = Vector.normalize(data.moveDirection);
         const step = (this.speed * deltaTime);
     
         this.translate({
@@ -36,7 +34,7 @@ export default class Player extends Character {
             y: (normalizedDir.y * step),
         })
 
-        this.rotation = playerActionBuffer.rotation;
+        this.rotation = data.rotation;
     }
 
     toModel(): PlayerModel {

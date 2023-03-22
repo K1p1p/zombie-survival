@@ -32,13 +32,7 @@ import Zombie from '../server/game/zombie.js';
 import BulletModel from '../dto/bullet.js';
 import PlayerModel from '../dto/player.js';
 import ZombieModel from '../dto/zombie.js';
-
-export interface PlayerActionBuffer {
-    rotation: number;
-    moveDirection: Vector;
-    shoot: boolean;
-    reload: boolean;
-}
+import PlayerActionRequestModel from '../dto/playerActionRequest.js';
 
 export type ServerUpdateCallback = ((data: string) => void);
 export type ServerData = {
@@ -55,8 +49,8 @@ export default class MockServer {
     
     private logicLoop: Loop = new Loop(60, this.update.bind(this));
     
-    private player: Player = new Player("_ID_", VectorZero());
-    private playerActionBuffer: PlayerActionBuffer = {
+    private player: Player = new Player(VectorZero());
+    private playerActionRequest: PlayerActionRequestModel = {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
@@ -85,14 +79,14 @@ export default class MockServer {
         // Clear bullets array
         this.bullets.length = 0;
         
-        this.player.update(deltaTime, this.playerActionBuffer);
+        this.player.update(deltaTime, this.playerActionRequest);
         this.zombies.forEach(zombie => zombie.update(deltaTime, this.player));
 
-        if(this.playerActionBuffer.reload) {
+        if(this.playerActionRequest.reload) {
             this.player.reload();
         }
 
-        if(this.playerActionBuffer.shoot) {
+        if(this.playerActionRequest.shoot) {
             const newBullet = this.player.shoot();
 
             if(newBullet) {
@@ -111,36 +105,17 @@ export default class MockServer {
             zombies: this.zombies.map<ZombieModel>(item => item.toModel())
         }))
 
-        // Clear action buffer ---------------------
-        this.playerActionBuffer.moveDirection = VectorZero();
+        // Clear player action buffer ---------------------
+        this.playerActionRequest.moveDirection = VectorZero();
         //this.playerActionBuffer.rotation = DO_NOT_CHANGE; // Keep rotation! Otherwise player rotates to zero when not moving!
-        this.playerActionBuffer.shoot = false;
-        this.playerActionBuffer.reload = false;
+        this.playerActionRequest.shoot = false;
+        this.playerActionRequest.reload = false;
     }
 
-    // Player requests
-
-    public playerConnection() {
-        
-    }
-
-    public playerShoot() {
-        this.playerActionBuffer.shoot = true;
-    }
-
-    public playerReload() {
-        this.playerActionBuffer.reload = true;
-    }
-
-    public playerSetRotation(radians: number) {
-        this.playerActionBuffer.rotation = radians;
-    }
-
-    public playerMove(inputDirection: Vector) {
-        this.playerActionBuffer.moveDirection = Vector.normalize(inputDirection);
-    }
-
-    public playerDisconnection(): void {
-        
+    // Handle player requests
+    public clientMessage(data: string) {
+        // Buffer player actions 
+        this.playerActionRequest = JSON.parse(data) as PlayerActionRequestModel;
+        this.playerActionRequest.moveDirection = Vector.normalize(this.playerActionRequest.moveDirection); // Sanitize input
     }
 }
