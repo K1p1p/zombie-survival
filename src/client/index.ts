@@ -15,8 +15,8 @@ import MockServer from "../server/index.js";
 import GunUI from "./ui/gunUI.js";
 import FpsUI from "./ui/fpsUI.js";
 
-import PlayerActionRequestModel from "../dto/playerActionRequest.js";
-import { ServerWorldMessageModel } from "../dto/serverWorldMessage.js";
+import { CLIENT_MESSAGE_TYPE, ClientMessageModel, ClientPlayerActionModel } from "../dto/clientMessage.js";
+import { SERVER_MESSAGE_TYPE, ServerMessageModel, ServerPlayerConnectedMessageModel, ServerWorldUpdateMessageModel } from "../dto/serverMessage.js";
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -35,20 +35,9 @@ const otherPlayers: { [index: string]: Player; } = {};
 const zombies: { [index: string]: Zombie; } = {};
 const bullets: Bullet[] = [];
 
-const player: Player = new Player({
-    id: null,
-    gun: {
-        ammo: 0,
-        ammoCapacity: 0,
-        isReloading: false
-    },
-    transform: {
-        direction: VectorZero(),
-        position: VectorZero(),
-        rotation: 0
-    }
-});
-const playerRequest: PlayerActionRequestModel = {
+let player: Player = null;
+
+const playerRequest: ClientPlayerActionModel = {
     moveDirection: VectorZero(),
     rotation: 0,
     shoot: false,
@@ -135,7 +124,12 @@ function draw(deltaTime: number) {
 
 // Request --------------------
 function sendRequestToServer() {
-    mockServer.clientMessage(JSON.stringify(playerRequest));
+    const payload: ServerMessageModel<ClientPlayerActionModel> = {
+        type: SERVER_MESSAGE_TYPE.UPDATE,
+        data: playerRequest
+    };
+
+    mockServer.onClientMessageReceived(JSON.stringify(payload));
 
     // Reset request buffer
     playerRequest.moveDirection = VectorZero();
@@ -144,10 +138,28 @@ function sendRequestToServer() {
 }
 
 // Server --------------------
-const mockServer: MockServer = new MockServer(onServerMessage);
+const mockServer: MockServer = new MockServer(onServerMessageReceived);
 
-function onServerMessage(data: string) {
-    const serverData = (JSON.parse(data) as ServerWorldMessageModel);
+const connectionRequest: ClientMessageModel = {
+    type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
+    data: null
+}
+mockServer.onClientMessageReceived(JSON.stringify(connectionRequest));
+
+function onServerMessageReceived(data: string) {
+    const message: ServerMessageModel = JSON.parse(data);
+
+    if(message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
+        const serverData = message.data as unknown as ServerPlayerConnectedMessageModel;
+
+        player = new Player(serverData.player);
+
+        return;
+    }
+
+    //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
+
+    const serverData = message.data as unknown as ServerWorldUpdateMessageModel;
 
     // Update player
     player.updateState(serverData.player);

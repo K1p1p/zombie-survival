@@ -9,7 +9,9 @@ export default class Zombie extends NPC {
 
     protected speed: number = 0.5;
 
-    update(deltaTime: number, player: Transform) {
+    update(deltaTime: number, player?: Transform) {
+        if(!player) { return; }
+
         this.lookAt(player.position);
 
         const normalizedDir: Vector = Vector.normalize(this.direction);

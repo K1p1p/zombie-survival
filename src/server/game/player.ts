@@ -3,7 +3,7 @@ import Character from "./character.js";
 import Gun from "./gun.js";
 import Bullet from "./bullet.js";
 import PlayerModel from "../../dto/player";
-import PlayerActionRequestModel from "../../dto/playerActionRequest.js";
+import { ClientPlayerActionModel } from "../../dto/clientMessage.js";
 import MockServer from "../index.js";
 
 export default class Player extends Character {
@@ -12,14 +12,14 @@ export default class Player extends Character {
     protected speed: number = 1;
     protected gun: Gun;
 
-    private actionBuffer: PlayerActionRequestModel = {
+    private actionBuffer: ClientPlayerActionModel = {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
         reload: false
     }
 
-    constructor(position: Vector, rotation?: number, direction?: Vector) {
+    constructor(position?: Vector, rotation?: number, direction?: Vector) {
         super(position, rotation, direction);
 
         this.gun = new Gun(this);
@@ -50,7 +50,7 @@ export default class Player extends Character {
         this.resetActionBuffer();
     }
 
-    clientUpdate(data: PlayerActionRequestModel) {
+    clientUpdate(data: ClientPlayerActionModel) {
         data.moveDirection = Vector.normalize(data.moveDirection); // Sanitize input
 
         this.actionBuffer = data;
