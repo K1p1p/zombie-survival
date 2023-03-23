@@ -10,21 +10,33 @@ import Player from "./game/player.js";
 import Bullet from "./game/bullet.js";
 import Zombie from "./game/zombie.js";
 
-import MockServer, { ServerData } from "../server/index.js";
+import MockServer from "../server/index.js";
 
 import GunUI from "./ui/gunUI.js";
 import FpsUI from "./ui/fpsUI.js";
 
 import PlayerActionRequestModel from "../dto/playerActionRequest.js";
+import { ServerWorldMessageModel } from "../dto/serverWorldMessage.js";
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
+const map: {
+    width: number;
+    height: number;
+} = {
+    width: 0,
+    height: 0
+};
+
+const otherPlayers: { [index: string]: Player; } = {};
 const zombies: { [index: string]: Zombie; } = {};
+const bullets: Bullet[] = [];
 
 const player: Player = new Player({
+    id: null,
     gun: {
         ammo: 0,
         ammoCapacity: 0,
@@ -86,11 +98,10 @@ function update(deltaTime: number) {
 }
 
 function draw(deltaTime: number) {
-    if(!serverData) { return; }
     if(!player) { return; }
 
-    for (let x = -(serverData.mapWidth / 2); x <= (serverData.mapWidth / 2); x++) {
-        for (let y = -(serverData.mapHeight / 2); y <= (serverData.mapHeight / 2); y++) {
+    for (let x = -(map.width / 2); x <= (map.width/ 2); x++) {
+        for (let y = -(map.height / 2); y <= (map.height / 2); y++) {
             new CoordinateText({ x: x, y: y }).render(context);
         }
     }
@@ -99,17 +110,27 @@ function draw(deltaTime: number) {
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
     new CoordinateText(mousePos).render(context);
 
-    serverData.bullets.forEach(item => new Bullet(item).render(context));
+    // Draw bullets
+    bullets.forEach((bullet) => bullet.render(context));
 
-    // Iterate over zombies dictionary
+    // Draw zombies
     for (let key in zombies) {
         zombies[key].render(context);
     }
 
+    // Draw other players
+    for (let key in otherPlayers) {
+        otherPlayers[key].render(context);
+    }
+
+    // Draw player
     player.render(context);
 
     gunUI.render(context, player.gun.state.current);
     FPS.render(context, deltaTime);
+
+    // Clear bullets
+    bullets.length = 0;
 }
 
 // Request --------------------
@@ -124,14 +145,46 @@ function sendRequestToServer() {
 
 // Server --------------------
 const mockServer: MockServer = new MockServer(onServerMessage);
-let serverData: ServerData;
-function onServerMessage(data: string) {
-    serverData = (JSON.parse(data) as ServerData);
 
+function onServerMessage(data: string) {
+    const serverData = (JSON.parse(data) as ServerWorldMessageModel);
+
+    // Update player
     player.updateState(serverData.player);
 
+    // Update map size
+    map.width = serverData.world.map.width;
+    map.height = serverData.world.map.height;
+
+    // Create bullets
+    serverData.world.bullets.forEach((item) => {
+        bullets.push(new Bullet(item));
+    });
+
+    // Create/Update players
+    serverData.world.players.forEach((playerData) => {
+        if(player.state.current.id === playerData.id) { return; } // Do not include our player in otherPlayers list
+
+        const otherPlayer = otherPlayers[playerData.id];
+
+        if(otherPlayer) {
+            otherPlayer.updateState(playerData)
+        } else {
+            otherPlayers[playerData.id] = new Player(playerData);
+        }
+    });
+
+    // Destroy other players entities which were not updated in the last 50ms since last server update
+    for (let key in otherPlayers) {
+        const lastUpdate = otherPlayers[key].state.lastUpdate;
+
+        if((Date.now() - lastUpdate) > 50) {
+            delete otherPlayers[key];
+        }  
+    }
+
     // Create/Update zombies
-    serverData.zombies.forEach((zombieData) => {
+    serverData.world.zombies.forEach((zombieData) => {
         const zombie = zombies[zombieData.id];
 
         if(zombie) {

@@ -58,6 +58,7 @@ export default class Player extends Character {
 
     toModel(): PlayerModel {
         return {
+            id: this.id,
             transform: {
                 position: this.position,
                 rotation: this.rotation,

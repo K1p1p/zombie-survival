@@ -33,15 +33,9 @@ import BulletModel from '../dto/bullet.js';
 import PlayerModel from '../dto/player.js';
 import ZombieModel from '../dto/zombie.js';
 import PlayerActionRequestModel from '../dto/playerActionRequest.js';
+import { ServerWorldMessageModel, ServerWorldModel } from '../dto/serverWorldMessage.js';
 
 export type ServerMessageCallback = ((data: string) => void);
-export type ServerData = {
-    mapWidth: number;
-    mapHeight: number;
-    player: PlayerModel;
-    bullets: BulletModel[];
-    zombies: ZombieModel[];
-}
 
 export default class MockServer {
     private mapWidth: number = 20;
@@ -76,13 +70,31 @@ export default class MockServer {
         this.zombies.forEach(zombie => zombie.update(deltaTime, this.getMockPlayer()));
 
         // Send data to client ---------------------
+        const world: ServerWorldModel = {
+            map: {
+                width: this.mapWidth,
+                height: this.mapHeight,
+            },
+            
+            players: this.players.map<PlayerModel>(item => item.toModel()),
+            zombies: this.zombies.map<ZombieModel>(item => item.toModel()),
+
+            bullets: this.bullets.map<BulletModel>(item => item.toModel())
+        }
+
+        // [TODO] [WIP] [WORKAROUND] Client only controls mock(first) player
         this.sendMessageToClient(JSON.stringify({
-            mapWidth: this.mapWidth,
-            mapHeight: this.mapHeight,
             player: this.getMockPlayer().toModel(),
-            bullets: this.bullets.map<BulletModel>(item => item.toModel()),
-            zombies: this.zombies.map<ZombieModel>(item => item.toModel())
-        }))
+            world: world
+        }));
+       /* this.players.forEach((player) => {
+            const data: ServerWorldMessageModel = {
+                player: player.toModel(),
+                world: world
+            }
+
+            this.sendMessageToClient(JSON.stringify(data));
+        })*/
     }
 
     createBullet(newBullet: Bullet) {
