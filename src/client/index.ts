@@ -124,8 +124,9 @@ function draw(deltaTime: number) {
 
 // Request --------------------
 function sendRequestToServer() {
-    const payload: ServerMessageModel<ClientPlayerActionModel> = {
-        type: SERVER_MESSAGE_TYPE.UPDATE,
+    const payload: ClientMessageModel<ClientPlayerActionModel> = {
+        clientId: player.state.current.id,
+        type: CLIENT_MESSAGE_TYPE.UPDATE,
         data: playerRequest
     };
 
@@ -141,6 +142,7 @@ function sendRequestToServer() {
 const mockServer: MockServer = new MockServer(onServerMessageReceived);
 
 const connectionRequest: ClientMessageModel = {
+    clientId: null,
     type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
     data: null
 }

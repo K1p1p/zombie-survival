@@ -43,10 +43,13 @@ export default class MockServer {
 
     private logicLoop: Loop = new Loop(60, this.update.bind(this));
 
-    private players: Player[] = [];
+    private players: { [index: string]: Player; } = {};
     private bullets: Bullet[] = [];
     private zombies: Zombie[] = [];
 
+    // [MOCK]
+    private mockClient_id: string;
+    private get mockClient_player(): Player { return this.players[this.mockClient_id];  }
     private mockSocket_sendToClient: ServerMessageCallback;
 
     constructor(updateCallback: ServerMessageCallback) {
@@ -70,8 +73,8 @@ export default class MockServer {
         // Clear bullets array
         this.bullets.length = 0;
 
-        this.players.forEach(player => player.update(deltaTime, this));
-        this.zombies.forEach(zombie => zombie.update(deltaTime, this.getMockPlayer()));
+        Object.values(this.players).forEach(player => player.update(deltaTime, this));
+        this.zombies.forEach(zombie => zombie.update(deltaTime, this.mockClient_player));
 
         // Send data to client ---------------------
         const world: ServerWorldModel = {
@@ -80,7 +83,7 @@ export default class MockServer {
                 height: this.mapHeight,
             },
 
-            players: this.players.map<PlayerModel>(item => item.toModel()),
+            players: Object.values(this.players).map<PlayerModel>(item => item.toModel()),
             zombies: this.zombies.map<ZombieModel>(item => item.toModel()),
 
             bullets: this.bullets.map<BulletModel>(item => item.toModel())
@@ -88,14 +91,12 @@ export default class MockServer {
 
         // [TODO] [WIP] [WORKAROUND] Client only controls/updates mock(first) player --------------------------- SHOULD SEND TO EACH CLIENT
         {
-            const player: Player = this.getMockPlayer();
-
-            if(!player) { return }
+            if(!this.mockClient_player) { return }
 
             const message: ServerMessageModel<ServerWorldUpdateMessageModel> = {
                 type: SERVER_MESSAGE_TYPE.UPDATE,
                 data: {
-                    player: player.toModel(),
+                    player: this.mockClient_player.toModel(),
                     world: world
                 }
             }
@@ -119,7 +120,7 @@ export default class MockServer {
             case CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION:
                 const newPlayer: Player = new Player(VectorZero());
 
-                this.players.push(newPlayer);
+                this.players[newPlayer.id] = newPlayer;
 
                 const payload: ServerMessageModel<ServerPlayerConnectedMessageModel> = {
                     type: SERVER_MESSAGE_TYPE.ON_CONNECTED,
@@ -128,20 +129,14 @@ export default class MockServer {
                     }
                 }
 
+                this.mockClient_id = newPlayer.id;
                 this.mockSocket_sendToClient(JSON.stringify(payload));
             break;
 
             case CLIENT_MESSAGE_TYPE.UPDATE:
                 const clientData = message.data as unknown as ClientPlayerActionModel;
-                this.getMockPlayer()?.clientUpdate(clientData);
+                this.players[message.clientId]?.clientUpdate(clientData);
             break;
         }
-    }
-
-    // [TODO] [Workaround] Due only simulating multiple players, return only the first one
-    getMockPlayer(): Player {
-        if(this.players.length === 0) { return null; }
-
-        return this.players[0];
     }
 }

@@ -6,6 +6,8 @@ export enum CLIENT_MESSAGE_TYPE {
 }
 
 export interface ClientMessageModel<T=any> {
+    clientId: string;
+
     type: CLIENT_MESSAGE_TYPE;
     data: T;
 }
