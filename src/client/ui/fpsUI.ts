@@ -1,4 +1,4 @@
-import FPSCounter from "../../core/browser/helper/fpsCounter.js";
+import FPSCounter from "../../core/helpers/fpsCounter.js";
 
 export default class FpsUI {
     private counter: FPSCounter = new FPSCounter();

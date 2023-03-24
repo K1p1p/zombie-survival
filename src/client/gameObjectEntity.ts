@@ -1,3 +1,5 @@
+import { Dictionary } from "../core/helpers/dictionary.js";
+
 type Create<GameObject, DTO> = (data: DTO) => GameObject;
 type Update<GameObject, DTO> = (gameObject: GameObject, data: DTO) => void;
 
@@ -18,7 +20,7 @@ export class GameObjectEntityList<GameObject, DTO extends { id: string }> {
 
     private actions: Actions<GameObject, DTO>;
 
-    private entities: { [index: string]: GameObjectEntity<GameObject>; } = {};
+    private entities: Dictionary<GameObjectEntity<GameObject>> = {};
 
     constructor(actions: Actions<GameObject, DTO>) {
         this.actions = actions;

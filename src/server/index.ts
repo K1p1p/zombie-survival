@@ -34,6 +34,7 @@ import PlayerModel from '../dto/player.js';
 import ZombieModel from '../dto/zombie.js';
 import { CLIENT_MESSAGE_TYPE, ClientMessageModel, ClientPlayerActionModel } from '../dto/clientMessage.js';
 import { SERVER_MESSAGE_TYPE, ServerMessageModel, ServerPlayerConnectedMessageModel, ServerWorldModel, ServerWorldUpdateMessageModel } from '../dto/serverMessage.js';
+import { Dictionary } from '../core/helpers/dictionary.js';
 
 export type ServerMessageCallback = ((data: string) => void);
 
@@ -43,7 +44,7 @@ export default class MockServer {
 
     private logicLoop: Loop = new Loop(60, this.update.bind(this));
 
-    private players: { [index: string]: Player; } = {};
+    private players: Dictionary<Player> = {};
     private bullets: Bullet[] = [];
     private zombies: Zombie[] = [];
 
