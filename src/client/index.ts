@@ -24,6 +24,7 @@ import ZombieModel from "../model/zombie";
 import { ClientPlayerAction } from "../dto/clientAction";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
+import Entity from "../dto/entity";
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -38,19 +39,20 @@ const map: {
     height: 0
 };
 
-const otherPlayers = new GameObjectEntityList<Player, PlayerModel>({
-    createGameObject: (data) => new Player(data),
-    updateEntity: (go, data) => go.updateState(data)
+const otherPlayers = new GameObjectEntityList<Player, Entity<PlayerModel>>({
+    createGameObject: (entity) => new Player(entity.data),
+    updateEntity: (go, entity) => go.updateState(entity.data)
 });
 
-const zombies = new GameObjectEntityList<Zombie, ZombieModel>({
-    createGameObject: (data) => new Zombie(data),
-    updateEntity: (go, data) => go.updateState(data)
+const zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
+    createGameObject: (entity) => new Zombie(entity.data),
+    updateEntity: (go, entity) => go.updateState(entity.data)
 });
 
 const bullets: Bullet[] = [];
 
 let player: Player = null;
+let playerEntity: Entity<PlayerModel> = null;
 
 const playerRequest: ClientPlayerAction = {
     moveDirection: VectorZero(),
@@ -122,7 +124,7 @@ function draw(deltaTime: number) {
 
     // Draw other players
     otherPlayers.forEach((otherPlayer) => {
-        if(otherPlayer.id === player.state.current.id) { return; }
+        if(otherPlayer.id === playerEntity.id) { return; }
 
         otherPlayer.gameObject.render(context);
     });
@@ -140,7 +142,7 @@ function draw(deltaTime: number) {
 // Request --------------------
 function sendRequestToServer() {
     const payload: ClientMessage<ClientPlayerAction> = {
-        clientId: player.state.current.id,
+        clientId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
         data: playerRequest
     };
@@ -169,7 +171,8 @@ function onServerMessageReceived(data: string) {
     if(message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
         const serverData = message.data as unknown as ServerPlayerConnected;
 
-        player = new Player(serverData.player);
+        playerEntity = serverData.player;
+        player = new Player(playerEntity.data);
 
         return;
     }
@@ -179,7 +182,7 @@ function onServerMessageReceived(data: string) {
     const serverData = message.data as unknown as ServerWorldUpdate;
 
     // Update player
-    player.updateState(serverData.player);
+    player.updateState(serverData.player.data);
 
     // Update map size
     map.width = serverData.world.map.width;

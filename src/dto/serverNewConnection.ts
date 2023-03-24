@@ -1,5 +1,6 @@
 import PlayerModel from "../model/player";
+import Entity from "./entity";
 
 export interface ServerPlayerConnected {
-    player: PlayerModel;
+    player: Entity<PlayerModel>;
 }

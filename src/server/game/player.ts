@@ -6,6 +6,7 @@ import INetworkObject from "../networkObject.js";
 import Transform from "../../core/transform.js";
 import PlayerModel from "../../model/player";
 import { ClientPlayerAction } from "../../dto/clientAction";
+import Entity from "../../dto/entity";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
@@ -57,15 +58,17 @@ export default class Player extends Transform implements INetworkObject {
         this.actionBuffer = data;
     }
 
-    toModel(): PlayerModel {
+    toModel(): Entity<PlayerModel> {
         return {
             id: this.id,
-            transform: {
-                position: this.position,
-                rotation: this.rotation,
-                direction: this.direction
-            },
-            gun: this.gun.toModel()
+            data: {
+                transform: {
+                    position: this.position,
+                    rotation: this.rotation,
+                    direction: this.direction
+                },
+                gun: this.gun.toModel()
+            }
         };
     }
 

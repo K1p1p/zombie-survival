@@ -38,6 +38,7 @@ import ZombieModel from '../model/zombie';
 import { ClientPlayerAction } from '../dto/clientAction';
 import { ServerPlayerConnected } from '../dto/serverNewConnection';
 import { ServerWorld, ServerWorldUpdate } from '../dto/serverUpdate';
+import Entity from '../dto/entity';
 
 export type ServerMessageCallback = ((data: string) => void);
 
@@ -87,8 +88,8 @@ export default class MockServer {
                 height: this.mapHeight,
             },
 
-            players: Object.values(this.players).map<PlayerModel>(item => item.toModel()),
-            zombies: this.zombies.map<ZombieModel>(item => item.toModel()),
+            players: Object.values(this.players).map<Entity<PlayerModel>>(item => item.toModel()),
+            zombies: this.zombies.map<Entity<ZombieModel>>(item => item.toModel()),
 
             bullets: this.bullets.map<BulletModel>(item => item.toModel())
         }

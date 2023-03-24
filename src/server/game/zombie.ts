@@ -2,6 +2,7 @@ import Transform from "../../core/transform.js";
 import Vector from "../../core/math/vector.js";
 import INetworkObject from "../networkObject.js";
 import ZombieModel from "../../model/zombie";
+import Entity from "../../dto/entity";
 
 // Common zombie
 export default class Zombie extends Transform implements INetworkObject {
@@ -24,16 +25,16 @@ export default class Zombie extends Transform implements INetworkObject {
         })
     }
 
-    toModel(): ZombieModel {
-        const payload: ZombieModel = {
+    toModel(): Entity<ZombieModel> {
+        return {
             id: this.id,
-            transform: {
-                position: this.position,
-                rotation: this.rotation,
-                direction: this.direction
+            data: {
+                transform: {
+                    position: this.position,
+                    rotation: this.rotation,
+                    direction: this.direction
+                }
             }
         }
-
-        return payload;
     }
 }
