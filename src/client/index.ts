@@ -18,6 +18,10 @@ import FpsUI from "./ui/fpsUI.js";
 import { CLIENT_MESSAGE_TYPE, ClientMessageModel, ClientPlayerActionModel } from "../dto/clientMessage.js";
 import { SERVER_MESSAGE_TYPE, ServerMessageModel, ServerPlayerConnectedMessageModel, ServerWorldUpdateMessageModel } from "../dto/serverMessage.js";
 
+import { GameObjectEntityList } from "./gameObjectEntity.js";
+import PlayerModel from "../dto/player.js";
+import ZombieModel from "../dto/zombie.js";
+
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
@@ -31,8 +35,16 @@ const map: {
     height: 0
 };
 
-const otherPlayers: { [index: string]: Player; } = {};
-const zombies: { [index: string]: Zombie; } = {};
+const otherPlayers = new GameObjectEntityList<Player, PlayerModel>({
+    createGameObject: (data) => new Player(data),
+    updateEntity: (go, data) => go.updateState(data)
+});
+
+const zombies = new GameObjectEntityList<Zombie, ZombieModel>({
+    createGameObject: (data) => new Zombie(data),
+    updateEntity: (go, data) => go.updateState(data)
+});
+
 const bullets: Bullet[] = [];
 
 let player: Player = null;
@@ -103,14 +115,14 @@ function draw(deltaTime: number) {
     bullets.forEach((bullet) => bullet.render(context));
 
     // Draw zombies
-    for (let key in zombies) {
-        zombies[key].render(context);
-    }
+    zombies.forEach((zombie) => zombie.gameObject.render(context));
 
     // Draw other players
-    for (let key in otherPlayers) {
-        otherPlayers[key].render(context);
-    }
+    otherPlayers.forEach((otherPlayer) => {
+        if(otherPlayer.id === player.state.current.id) { return; }
+
+        otherPlayer.gameObject.render(context);
+    });
 
     // Draw player
     player.render(context);
@@ -175,45 +187,6 @@ function onServerMessageReceived(data: string) {
         bullets.push(new Bullet(item));
     });
 
-    // Create/Update players
-    serverData.world.players.forEach((playerData) => {
-        if(player.state.current.id === playerData.id) { return; } // Do not include our player in otherPlayers list
-
-        const otherPlayer = otherPlayers[playerData.id];
-
-        if(otherPlayer) {
-            otherPlayer.updateState(playerData)
-        } else {
-            otherPlayers[playerData.id] = new Player(playerData);
-        }
-    });
-
-    // Destroy other players entities which were not updated in the last 50ms since last server update
-    for (let key in otherPlayers) {
-        const lastUpdate = otherPlayers[key].state.lastUpdate;
-
-        if((Date.now() - lastUpdate) > 50) {
-            delete otherPlayers[key];
-        }  
-    }
-
-    // Create/Update zombies
-    serverData.world.zombies.forEach((zombieData) => {
-        const zombie = zombies[zombieData.id];
-
-        if(zombie) {
-            zombie.updateState(zombieData)
-        } else {
-            zombies[zombieData.id] = new Zombie(zombieData);
-        }
-    });
-
-    // Destroy zombie entities which were not updated in the last 50ms since last server update
-    for (let key in zombies) {
-        const lastUpdate = zombies[key].state.lastUpdate;
-
-        if((Date.now() - lastUpdate) > 50) {
-            delete zombies[key];
-        }  
-    }
+    zombies.onServerUpdate(serverData.world.zombies);
+    otherPlayers.onServerUpdate(serverData.world.players);
 }
