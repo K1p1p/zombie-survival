@@ -1,10 +1,10 @@
-import NPC from "./npc.js";
 import Transform from "../../core/transform.js";
 import Vector from "../../core/math/vector.js";
-import ZombieModel from "../../dto/zombie";
+import ZombieModel from "../../dto/zombie.js";
+import INetworkObject from "../networkObject.js";
 
 // Common zombie
-export default class Zombie extends NPC {
+export default class Zombie extends Transform implements INetworkObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
 
     protected speed: number = 0.5;

@@ -1,12 +1,13 @@
 import Vector, { VectorZero } from "../../core/math/vector.js";
-import Character from "./character.js";
 import Gun from "./gun.js";
 import Bullet from "./bullet.js";
 import PlayerModel from "../../dto/player";
 import { ClientPlayerActionModel } from "../../dto/clientMessage.js";
 import MockServer from "../index.js";
+import INetworkObject from "../networkObject.js";
+import Transform from "../../core/transform.js";
 
-export default class Player extends Character {
+export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
 
     protected speed: number = 1;
