@@ -1,5 +1,5 @@
 import Transform from "../../core/transform.js";
-import GunModel from "../../dto/gun";
+import GunModel from "../../model/gun";
 import INetworkObject from "../networkObject";
 import Bullet from "./bullet.js";
 

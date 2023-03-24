@@ -15,12 +15,15 @@ import MockServer from "../server/index.js";
 import GunUI from "./ui/gunUI.js";
 import FpsUI from "./ui/fpsUI.js";
 
-import { CLIENT_MESSAGE_TYPE, ClientMessageModel, ClientPlayerActionModel } from "../dto/clientMessage.js";
-import { SERVER_MESSAGE_TYPE, ServerMessageModel, ServerPlayerConnectedMessageModel, ServerWorldUpdateMessageModel } from "../dto/serverMessage.js";
+import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage.js";
+import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage.js";
 
 import { GameObjectEntityList } from "./gameObjectEntity.js";
-import PlayerModel from "../dto/player.js";
-import ZombieModel from "../dto/zombie.js";
+import PlayerModel from "../model/player";
+import ZombieModel from "../model/zombie";
+import { ClientPlayerAction } from "../dto/clientAction";
+import { ServerPlayerConnected } from "../dto/serverNewConnection";
+import { ServerWorldUpdate } from "../dto/serverUpdate";
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -49,7 +52,7 @@ const bullets: Bullet[] = [];
 
 let player: Player = null;
 
-const playerRequest: ClientPlayerActionModel = {
+const playerRequest: ClientPlayerAction = {
     moveDirection: VectorZero(),
     rotation: 0,
     shoot: false,
@@ -136,7 +139,7 @@ function draw(deltaTime: number) {
 
 // Request --------------------
 function sendRequestToServer() {
-    const payload: ClientMessageModel<ClientPlayerActionModel> = {
+    const payload: ClientMessage<ClientPlayerAction> = {
         clientId: player.state.current.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
         data: playerRequest
@@ -153,7 +156,7 @@ function sendRequestToServer() {
 // Server --------------------
 const mockServer: MockServer = new MockServer(onServerMessageReceived);
 
-const connectionRequest: ClientMessageModel = {
+const connectionRequest: ClientMessage = {
     clientId: null,
     type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
     data: null
@@ -161,10 +164,10 @@ const connectionRequest: ClientMessageModel = {
 mockServer.onClientMessageReceived(JSON.stringify(connectionRequest));
 
 function onServerMessageReceived(data: string) {
-    const message: ServerMessageModel = JSON.parse(data);
+    const message: ServerMessage = JSON.parse(data);
 
     if(message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
-        const serverData = message.data as unknown as ServerPlayerConnectedMessageModel;
+        const serverData = message.data as unknown as ServerPlayerConnected;
 
         player = new Player(serverData.player);
 
@@ -173,7 +176,7 @@ function onServerMessageReceived(data: string) {
 
     //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
 
-    const serverData = message.data as unknown as ServerWorldUpdateMessageModel;
+    const serverData = message.data as unknown as ServerWorldUpdate;
 
     // Update player
     player.updateState(serverData.player);

@@ -1,5 +1,5 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import ZombieModel from "../../dto/zombie";
+import ZombieModel from "../../model/zombie";
 import ModelStateHandler from "../modelStateHandler.js";
 
 export default class Zombie extends GameObject {

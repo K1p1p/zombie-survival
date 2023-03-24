@@ -1,11 +1,11 @@
 import Vector, { VectorZero } from "../../core/math/vector.js";
 import Gun from "./gun.js";
 import Bullet from "./bullet.js";
-import PlayerModel from "../../dto/player";
-import { ClientPlayerActionModel } from "../../dto/clientMessage.js";
 import MockServer from "../index.js";
 import INetworkObject from "../networkObject.js";
 import Transform from "../../core/transform.js";
+import PlayerModel from "../../model/player";
+import { ClientPlayerAction } from "../../dto/clientAction";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
@@ -13,7 +13,7 @@ export default class Player extends Transform implements INetworkObject {
     protected speed: number = 1;
     protected gun: Gun;
 
-    private actionBuffer: ClientPlayerActionModel = {
+    private actionBuffer: ClientPlayerAction = {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
@@ -51,7 +51,7 @@ export default class Player extends Transform implements INetworkObject {
         this.resetActionBuffer();
     }
 
-    clientUpdate(data: ClientPlayerActionModel) {
+    clientUpdate(data: ClientPlayerAction) {
         data.moveDirection = Vector.normalize(data.moveDirection); // Sanitize input
 
         this.actionBuffer = data;

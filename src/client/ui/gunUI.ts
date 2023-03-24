@@ -1,4 +1,4 @@
-import GunModel from "../../dto/gun";
+import GunModel from "../../model/gun";
 
 export default class GunUI {
     private getText(gun: GunModel): string {

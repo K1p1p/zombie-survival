@@ -29,12 +29,15 @@ import Vector, { VectorZero } from '../core/math/vector.js';
 import Player from '../server/game/player.js';
 import Bullet from '../server/game/bullet.js';
 import Zombie from '../server/game/zombie.js';
-import BulletModel from '../dto/bullet.js';
-import PlayerModel from '../dto/player.js';
-import ZombieModel from '../dto/zombie.js';
-import { CLIENT_MESSAGE_TYPE, ClientMessageModel, ClientPlayerActionModel } from '../dto/clientMessage.js';
-import { SERVER_MESSAGE_TYPE, ServerMessageModel, ServerPlayerConnectedMessageModel, ServerWorldModel, ServerWorldUpdateMessageModel } from '../dto/serverMessage.js';
+import { CLIENT_MESSAGE_TYPE, ClientMessage } from '../dto/clientMessage.js';
+import { SERVER_MESSAGE_TYPE, ServerMessage } from '../dto/serverMessage.js';
 import { Dictionary } from '../core/helpers/dictionary.js';
+import BulletModel from '../model/bullet';
+import PlayerModel from '../model/player';
+import ZombieModel from '../model/zombie';
+import { ClientPlayerAction } from '../dto/clientAction';
+import { ServerPlayerConnected } from '../dto/serverNewConnection';
+import { ServerWorld, ServerWorldUpdate } from '../dto/serverUpdate';
 
 export type ServerMessageCallback = ((data: string) => void);
 
@@ -66,7 +69,7 @@ export default class MockServer {
         }, 1000);
     }
 
-    private sendMessageToClient(message: ServerMessageModel) {
+    private sendMessageToClient(message: ServerMessage) {
         this.mockSocket_sendToClient(JSON.stringify(message));
     }
 
@@ -78,7 +81,7 @@ export default class MockServer {
         this.zombies.forEach(zombie => zombie.update(deltaTime, this.mockClient_player));
 
         // Send data to client ---------------------
-        const world: ServerWorldModel = {
+        const world: ServerWorld = {
             map: {
                 width: this.mapWidth,
                 height: this.mapHeight,
@@ -94,7 +97,7 @@ export default class MockServer {
         {
             if(!this.mockClient_player) { return }
 
-            const message: ServerMessageModel<ServerWorldUpdateMessageModel> = {
+            const message: ServerMessage<ServerWorldUpdate> = {
                 type: SERVER_MESSAGE_TYPE.UPDATE,
                 data: {
                     player: this.mockClient_player.toModel(),
@@ -115,7 +118,7 @@ export default class MockServer {
     }
 
     public onClientMessageReceived(data: string) {
-        const message: ClientMessageModel = JSON.parse(data);
+        const message: ClientMessage = JSON.parse(data);
 
         switch (message.type) {
             case CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION:
@@ -123,7 +126,7 @@ export default class MockServer {
 
                 this.players[newPlayer.id] = newPlayer;
 
-                const payload: ServerMessageModel<ServerPlayerConnectedMessageModel> = {
+                const payload: ServerMessage<ServerPlayerConnected> = {
                     type: SERVER_MESSAGE_TYPE.ON_CONNECTED,
                     data: {
                         player: newPlayer.toModel()
@@ -135,7 +138,7 @@ export default class MockServer {
             break;
 
             case CLIENT_MESSAGE_TYPE.UPDATE:
-                const clientData = message.data as unknown as ClientPlayerActionModel;
+                const clientData = message.data as unknown as ClientPlayerAction;
                 this.players[message.clientId]?.clientUpdate(clientData);
             break;
         }

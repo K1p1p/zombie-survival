@@ -1,4 +1,4 @@
-import GunModel from "../../dto/gun";
+import GunModel from "../../model/gun";
 import ModelStateHandler from "../modelStateHandler.js";
 import SoundManager from "./soundManager.js";
 

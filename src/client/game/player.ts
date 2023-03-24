@@ -1,5 +1,5 @@
 import GameObject from "../../core/browser/game/gameObject.js";
-import PlayerModel from "../../dto/player.js";
+import PlayerModel from "../../model/player";
 import ModelStateHandler from "../modelStateHandler.js";
 import Gun from "./gun.js";
 
