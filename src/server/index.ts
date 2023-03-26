@@ -39,6 +39,7 @@ import { ClientPlayerAction } from '../dto/clientAction';
 import { ServerPlayerConnected } from '../dto/serverNewConnection';
 import { ServerWorld, ServerWorldUpdate } from '../dto/serverUpdate';
 import Entity from '../dto/entity';
+import Circle from '../core/geometry/circle.js';
 
 export type ServerMessageCallback = ((data: string) => void);
 
@@ -79,7 +80,15 @@ export default class MockServer {
         this.bullets.length = 0;
 
         Object.values(this.players).forEach(player => player.update(deltaTime, this));
-        this.zombies.forEach(zombie => zombie.update(deltaTime, this.mockClient_player));
+        this.zombies.forEach(zombie => {
+            zombie.update(deltaTime, this.mockClient_player);
+
+            // Check collision with player, then damages it
+            const playerCollider: Circle = this.mockClient_player.collider;
+            if(Circle.intersectsSphere(zombie.collider, playerCollider)) {
+                this.mockClient_player.health -= (zombie.attackPower * deltaTime);
+            }
+        });
 
         // Send data to client ---------------------
         const world: ServerWorld = {
@@ -116,7 +125,7 @@ export default class MockServer {
 
             if(hit) {
                 // Damage zombie
-                hit.zombie.health -= 1;
+                hit.zombie.health -= this.mockClient_player.gun.attackPower;
 
                 if(hit.zombie.health <= 0) {
                     // Destroy zombie

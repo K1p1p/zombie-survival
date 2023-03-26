@@ -7,14 +7,22 @@ import Transform from "../../core/transform.js";
 import PlayerModel from "../../model/player";
 import { ClientPlayerAction } from "../../dto/clientAction";
 import Entity from "../../dto/entity";
+import Circle from "../../core/geometry/circle.js";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public maxHealth: number = 10;
     public health: number = this.maxHealth;
+    public get collider(): Circle { 
+        return {
+            position: this.position,
+            radius: 0.1
+        } 
+    };
+
+    public gun: Gun;
 
     protected speed: number = 1;
-    protected gun: Gun;
 
     private actionBuffer: ClientPlayerAction = {
         moveDirection: VectorZero(),

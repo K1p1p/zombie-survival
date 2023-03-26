@@ -3,12 +3,20 @@ import Vector from "../../core/math/vector.js";
 import INetworkObject from "../networkObject.js";
 import ZombieModel from "../../model/zombie";
 import Entity from "../../dto/entity";
+import Circle from "../../core/geometry/circle.js";
 
 // Common zombie
 export default class Zombie extends Transform implements INetworkObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public maxHealth: number = 2;
     public health: number = this.maxHealth;
+    public attackPower: number = 1;
+    public get collider(): Circle { 
+        return {
+            position: this.position,
+            radius: 0.1
+        } 
+    };
 
     protected speed: number = 0.5;
 

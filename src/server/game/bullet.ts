@@ -1,7 +1,6 @@
 import Vector from "../../core/math/vector.js";
 import Transform from "../../core/transform.js";
 import Zombie from "./zombie.js";
-import Circle from "../../core/geometry/circle.js";
 import Line from "../../core/geometry/line.js";
 import INetworkObject from "../networkObject.js";
 import BulletModel from "../../model/bullet";
@@ -9,6 +8,13 @@ import BulletModel from "../../model/bullet";
 export default class Bullet extends Transform implements INetworkObject {
     private endPosition: Vector;
     private maxDistance: number = 8;
+
+    public get collider(): Line { 
+        return {
+            start: this.position, 
+            end: this.endPosition
+        } 
+    };
 
     constructor(position: Vector, direction: Vector) {
         super(position);
@@ -28,17 +34,7 @@ export default class Bullet extends Transform implements INetworkObject {
         let zombieHitIndex: number = 0;
         let zombieHitDistance: number = Number.POSITIVE_INFINITY;
         zombies.forEach((zombie, index) => {
-            const collider: Circle = {
-                position: zombie.position, 
-                radius: 0.1
-            }
-
-            const bulletCollider: Line = {
-                start: this.position, 
-                end: this.endPosition
-            }
-
-            if(Line.intersectsCircle(bulletCollider, collider)) {
+            if(Line.intersectsCircle(this.collider, zombie.collider)) {
                 const distanceFromBullet: number = Vector.magnitude({ 
                     x: (zombie.position.x - this.position.x),
                     y: (zombie.position.y - this.position.y),

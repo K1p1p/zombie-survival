@@ -35,6 +35,9 @@ export default class Player extends GameObject {
         this.position = newState.transform.position;
         this.direction = newState.transform.direction;
         this.rotation = newState.transform.rotation;
+
+        this.healthBar.value = newState.health;
+        this.healthBar.maxValue = newState.maxHealth;
     }
 
     render(context: CanvasRenderingContext2D): void {

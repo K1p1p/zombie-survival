@@ -4,12 +4,14 @@ import INetworkObject from "../networkObject";
 import Bullet from "./bullet.js";
 
 export default class Gun implements INetworkObject {
-    ammo: number = 6;
-    ammoCapacity: number = 6;
-    reloadTime: number = 1000; // ms
-    isReloading: boolean;
+    public ammo: number = 6;
+    public ammoCapacity: number = 6;
+    public reloadTime: number = 1000; // ms
+    public isReloading: boolean;
 
-    wielderTransform: Transform;
+    public attackPower: number = 1;
+
+    public wielderTransform: Transform;
 
     constructor(wielderTransform: Transform) {
         this.wielderTransform = wielderTransform;
