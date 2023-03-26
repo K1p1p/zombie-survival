@@ -47,7 +47,7 @@ export default class MockServer {
     private mapWidth: number = 20;
     private mapHeight: number = 20;
 
-    private logicLoop: Loop = new Loop(60, this.update.bind(this));
+    private logicLoop: Loop;
 
     private players: Dictionary<Player> = {};
     private bullets: Bullet[] = [];
@@ -58,8 +58,11 @@ export default class MockServer {
     private get mockClient_player(): Player { return this.players[this.mockClient_id];  }
     private mockSocket_sendToClient: ServerMessageCallback;
 
-    constructor(updateCallback: ServerMessageCallback) {
+    constructor(updateCallback: ServerMessageCallback, simulatedLatencyMilliseconds: number = 16) {
         this.mockSocket_sendToClient = updateCallback;
+
+        const msToFPS: number = (1 / (simulatedLatencyMilliseconds / 1000));
+        this.logicLoop = new Loop(msToFPS, this.update.bind(this));
 
         setInterval(() => {
             const pos: Vector = {

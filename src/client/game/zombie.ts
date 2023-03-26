@@ -1,4 +1,6 @@
 import GameObject from "../../core/browser/game/gameObject.js";
+import { angleLerp } from "../../core/math/index.js";
+import Vector from "../../core/math/vector.js";
 import ZombieModel from "../../model/zombie";
 import HealthBar from "../healthBar.js";
 import ModelStateHandler from "../modelStateHandler.js";
@@ -18,14 +20,23 @@ export default class Zombie extends GameObject {
 
     public update(deltaTime: number) {
         this.healthBar.update(deltaTime);
+
+        // Interpolation
+        this.position = Vector.moveTowards(
+            this.position, 
+            this.state.current.transform.position, 
+            this.state.current.speed * deltaTime
+        )
+
+        this.rotation = angleLerp(this.rotation, this.state.current.transform.rotation, 15 * deltaTime);
     }
 
     public updateState(newState: ZombieModel) {
         this.state.setState(newState);
 
-        this.position = newState.transform.position;
-        this.direction = newState.transform.direction;
-        this.rotation = newState.transform.rotation;
+        this.position = this.state.last.transform.position;
+        this.direction = this.state.last.transform.direction;
+        this.rotation = this.state.last.transform.rotation;
 
         this.healthBar.value = newState.health;
         this.healthBar.maxValue = newState.maxHealth;

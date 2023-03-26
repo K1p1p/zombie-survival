@@ -41,6 +41,7 @@ export default class Zombie extends Transform implements INetworkObject {
             data: {
                 health: this.health,
                 maxHealth: this.maxHealth,
+                speed: this.speed,
                 transform: {
                     position: this.position,
                     rotation: this.rotation,
