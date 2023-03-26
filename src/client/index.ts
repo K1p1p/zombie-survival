@@ -158,11 +158,6 @@ function sendUpdateToServer() {
     };
 
     mockServer.onClientMessageReceived(JSON.stringify(payload));
-
-    // Reset request buffer
-    playerRequest.moveDirection = VectorZero();
-    playerRequest.shoot = false;
-    playerRequest.reload = false;
 }
 
 function requestRespawn() {
@@ -218,4 +213,13 @@ function onServerMessageReceived(data: string) {
 
     zombies.onServerUpdate(serverData.world.zombies);
     otherPlayers.onServerUpdate(serverData.world.players);
+
+
+
+    //---------------------------- CLEAR ACTION BUFFER ----------------------------
+
+    // Reset request buffer
+    playerRequest.moveDirection = VectorZero();
+    playerRequest.shoot = false;
+    playerRequest.reload = false;
 }
