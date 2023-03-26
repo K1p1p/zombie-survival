@@ -238,6 +238,7 @@ function sendMessage(data: string) {
 }
 */
 //---------------------------- MULTIPLAYER SERVER ----------------------------
+//Example: ws://0.tcp.sa.ngrok.io:19922/
 const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
 const webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
 
