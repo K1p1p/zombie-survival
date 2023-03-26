@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Server from '../server';
 import { Dictionary } from '../../core/helpers/dictionary';
 
-const server: Server = new Server(onServerMessage, 100);
+const server: Server = new Server(onServerMessage);
 const webSocketServer = new WSServer({ port: 2222 });
 
 const clients: Dictionary<WebSocket> = {}

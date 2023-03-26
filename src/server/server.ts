@@ -32,7 +32,7 @@ export default class Server {
 
     constructor(
         updateCallback: ServerMessageCallback,
-        simulatedLatencyMilliseconds: number = 16
+        simulatedLatencyMilliseconds: number = 20
     ) {
         this.sendMessage = updateCallback;
 
@@ -46,7 +46,7 @@ export default class Server {
             };
 
             this.zombies.push(new Zombie(pos));
-        }, 1000);
+        }, 2000);
     }
 
     private update(deltaTime: number) {

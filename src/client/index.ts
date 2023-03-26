@@ -238,8 +238,8 @@ function sendMessage(data: string) {
 }
 */
 //---------------------------- MULTIPLAYER SERVER ----------------------------
-
-const webSocket = new WebSocket('ws://localhost:2222/');
+const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
+const webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
 
 webSocket.onmessage = async (event: MessageEvent) => {
     onServerMessageReceived(event.data.toString());
