@@ -16,7 +16,7 @@ export default class Bullet extends Transform implements INetworkObject {
         this.setDirection(direction);
     }
 
-    collisionCheck(zombies: Zombie[]) {
+    collisionCheck(zombies: Zombie[]): { zombie: Zombie, zombieIndex: number} {
         // Project trajectory
         this.endPosition = {
             x: (this.position.x + (this.direction.x * this.maxDistance)),
@@ -54,12 +54,16 @@ export default class Bullet extends Transform implements INetworkObject {
         });
 
         if(zombieHit) {
-            // Destroy zombie
-            zombies.splice(zombieHitIndex, 1); 
-
             // Reposition bullet
             this.endPosition  = zombieHit.position;
+
+            return {
+                zombie: zombieHit,
+                zombieIndex: zombieHitIndex
+            };
         }
+
+        return null;
     }
 
     getEndPosition(): Vector {

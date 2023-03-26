@@ -7,6 +7,8 @@ import Entity from "../../dto/entity";
 // Common zombie
 export default class Zombie extends Transform implements INetworkObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
+    public maxHealth: number = 2;
+    public health: number = this.maxHealth;
 
     protected speed: number = 0.5;
 
@@ -29,6 +31,8 @@ export default class Zombie extends Transform implements INetworkObject {
         return {
             id: this.id,
             data: {
+                health: this.health,
+                maxHealth: this.maxHealth,
                 transform: {
                     position: this.position,
                     rotation: this.rotation,

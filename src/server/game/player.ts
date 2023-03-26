@@ -10,6 +10,8 @@ import Entity from "../../dto/entity";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
+    public maxHealth: number = 10;
+    public health: number = this.maxHealth;
 
     protected speed: number = 1;
     protected gun: Gun;
@@ -62,6 +64,8 @@ export default class Player extends Transform implements INetworkObject {
         return {
             id: this.id,
             data: {
+                health: this.health,
+                maxHealth: this.maxHealth,
                 transform: {
                     position: this.position,
                     rotation: this.rotation,

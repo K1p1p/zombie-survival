@@ -12,16 +12,29 @@ export default class HealthBar extends GameObject {
     private xOffset: number;
     private yOffset: number
 
-    public maxValue: number;
-
-    private _value: number;
-    public get value(): number { return Math.min(this._value, this.maxValue); }
-    public set value(value: number) { this._value = Math.max(value, 0); }
-
     private smoothValue: number;
+
+    private displayTime: number = 5000; //ms
+    private displayStartTime: number = Number.NEGATIVE_INFINITY;
+    private get shouldDisplay(): boolean { return (Date.now() - this.displayStartTime) <= this.displayTime; }
+
+    public maxValue: number;
+    private _value: number;
 
     private targetRadius: number
     private targetTransform: Transform
+
+    public get value(): number { 
+        return Math.min(this._value, this.maxValue); 
+    }
+
+    public set value(value: number) { 
+        if(this._value === value) { return; }
+
+        this._value = Math.max(value, 0); 
+
+        this.onValueChangedTempDisplay();
+    }
 
     constructor(targetTransform: Transform, targetRadius: number,  maxValue: number, value: number = maxValue) {
         super();
@@ -29,7 +42,7 @@ export default class HealthBar extends GameObject {
         this.targetTransform = targetTransform;
 
         this.maxValue = maxValue;
-        this.value = Math.min(value, maxValue);
+        this._value = Math.min(value, maxValue);
         this.smoothValue = this.value;
     }
 
@@ -47,6 +60,8 @@ export default class HealthBar extends GameObject {
     }
 
     render(context: CanvasRenderingContext2D): void {
+        if(!this.shouldDisplay) { return; }
+
         super.render(context);
 
         this.drawLine(context, "black"  , 1.00);
@@ -59,5 +74,10 @@ export default class HealthBar extends GameObject {
         context.fillStyle = color;
         context.fillRect(0, 0, (this.width * ratio), this.height);
         context.closePath();
+    }
+
+    // Display temporarily on value change
+    private onValueChangedTempDisplay() {
+        this.displayStartTime = Date.now();
     }
 }

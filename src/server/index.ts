@@ -112,7 +112,17 @@ export default class MockServer {
 
     createBullet(newBullet: Bullet) {
         if (newBullet) {
-            newBullet.collisionCheck(this.zombies);
+            const hit = newBullet.collisionCheck(this.zombies);
+
+            if(hit) {
+                // Damage zombie
+                hit.zombie.health -= 1;
+
+                if(hit.zombie.health <= 0) {
+                    // Destroy zombie
+                    this.zombies.splice(hit.zombieIndex, 1); 
+                }
+            }
 
             this.bullets.push(newBullet);
         }

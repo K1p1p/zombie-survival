@@ -64,21 +64,21 @@ const playerRequest: ClientPlayerAction = {
 const FPS: FpsUI = new FpsUI();
 const gunUI: GunUI = new GunUI();
 
-function update(deltaTime: number) {
+function updatePlayerInput() {
     // Player update -----------
-    if(!player) { return; }
+    if (!player) { return; }
 
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
 
     const moveDirection: Vector = VectorZero();
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowLeft ) || Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowUp   ) || Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
-    if(Keyboard.getKeyHold(KeyboardKey.ArrowDown ) || Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.ArrowLeft) || Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.ArrowUp) || Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.ArrowDown) || Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
 
     const playerRotation: number = Math.atan2(
-        -(mousePos.y - player.position.y), 
-         (mousePos.x - player.position.x)
+        -(mousePos.y - player.position.y),
+        (mousePos.x - player.position.x)
     );
 
     playerRequest.moveDirection = moveDirection;
@@ -87,12 +87,12 @@ function update(deltaTime: number) {
     Camera.position = player.position;
 
     // Gun update -----------
-    if(!player.gun) { return; }
+    if (!player.gun) { return; }
 
-    if(Keyboard.getKeyHold(KeyboardKey.R)) { playerRequest.reload = true; }
+    if (Keyboard.getKeyHold(KeyboardKey.R)) { playerRequest.reload = true; }
 
-    if(Mouse.getButtonDown(0)) {
-        if(player.gun.getAmmo() === 0) {
+    if (Mouse.getButtonDown(0)) {
+        if (player.gun.getAmmo() === 0) {
             playerRequest.reload = true;
         } else {
             playerRequest.shoot = true;
@@ -103,10 +103,18 @@ function update(deltaTime: number) {
     sendRequestToServer();
 }
 
-function draw(deltaTime: number) {
-    if(!player) { return; }
+function update(deltaTime: number) {
+    updatePlayerInput();
 
-    for (let x = -(map.width / 2); x <= (map.width/ 2); x++) {
+    player.update(deltaTime);
+    zombies.forEach((zombie) => zombie.gameObject.update(deltaTime));
+    otherPlayers.forEach((otherPlayer) => otherPlayer.gameObject.update(deltaTime));
+}
+
+function draw(deltaTime: number) {
+    if (!player) { return; }
+
+    for (let x = -(map.width / 2); x <= (map.width / 2); x++) {
         for (let y = -(map.height / 2); y <= (map.height / 2); y++) {
             new CoordinateText({ x: x, y: y }).render(context);
         }
@@ -124,7 +132,7 @@ function draw(deltaTime: number) {
 
     // Draw other players
     otherPlayers.forEach((otherPlayer) => {
-        if(otherPlayer.id === playerEntity.id) { return; }
+        if (otherPlayer.id === playerEntity.id) { return; }
 
         otherPlayer.gameObject.render(context);
     });
@@ -168,7 +176,7 @@ mockServer.onClientMessageReceived(JSON.stringify(connectionRequest));
 function onServerMessageReceived(data: string) {
     const message: ServerMessage = JSON.parse(data);
 
-    if(message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
+    if (message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
         const serverData = message.data as unknown as ServerPlayerConnected;
 
         playerEntity = serverData.player;
