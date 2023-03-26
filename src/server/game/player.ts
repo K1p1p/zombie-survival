@@ -1,13 +1,13 @@
 import Vector, { VectorZero } from "../../core/math/vector.js";
 import Gun from "./gun.js";
 import Bullet from "./bullet.js";
-import MockServer from "../index.js";
 import INetworkObject from "../networkObject.js";
 import Transform from "../../core/transform.js";
 import PlayerModel from "../../model/player";
 import { ClientPlayerAction } from "../../dto/clientAction";
 import Entity from "../../dto/entity";
 import Circle from "../../core/geometry/circle.js";
+import Server from "../server";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
@@ -46,7 +46,7 @@ export default class Player extends Transform implements INetworkObject {
         this.gun.reload();
     }
 
-    update(deltaTime: number, server: MockServer) {
+    update(deltaTime: number, server: Server) {
         if(!this.isAlive) { return; }
 
         const normalizedDir: Vector = Vector.normalize(this.actionBuffer.moveDirection);
@@ -59,7 +59,7 @@ export default class Player extends Transform implements INetworkObject {
 
         this.rotation = this.actionBuffer.rotation;
 
-        if(this.actionBuffer.shoot) { server.createBullet(this.shoot()); }
+        if(this.actionBuffer.shoot) { server.createBullet(this.shoot(), this.gun); }
         if(this.actionBuffer.reload) { this.reload(); }
 
         this.resetActionBuffer();

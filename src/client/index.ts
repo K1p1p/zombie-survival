@@ -10,8 +10,6 @@ import Player from "./game/player.js";
 import Bullet from "./game/bullet.js";
 import Zombie from "./game/zombie.js";
 
-import MockServer from "../server/index.js";
-
 import GunUI from "./ui/gunUI.js";
 import FpsUI from "./ui/fpsUI.js";
 
@@ -25,6 +23,7 @@ import { ClientPlayerAction } from "../dto/clientAction";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
+import SingleplayerServer from "../server/variants/singleplayerServer.js";
 
 document.getElementById("respawn-button").onclick = requestRespawn;
 
@@ -152,12 +151,12 @@ function draw(deltaTime: number) {
 // Request --------------------
 function sendUpdateToServer() {
     const payload: ClientMessage<ClientPlayerAction> = {
-        clientId: playerEntity.id,
+        playerId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
         data: playerRequest
     };
 
-    mockServer.onClientMessageReceived(JSON.stringify(payload));
+    mockServer.onClientMessage(JSON.stringify(payload));
 }
 
 function requestRespawn() {
@@ -165,22 +164,22 @@ function requestRespawn() {
     if(player.state.current.health > 0) { return }
 
     const request: ClientMessage = {
-        clientId: playerEntity.id,
+        playerId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
         data: null
     }
-    mockServer.onClientMessageReceived(JSON.stringify(request));
+    mockServer.onClientMessage(JSON.stringify(request));
 }
 
 // Server --------------------
-const mockServer: MockServer = new MockServer(onServerMessageReceived);
+const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
 
 const connectionRequest: ClientMessage = {
-    clientId: null,
+    playerId: null,
     type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
     data: null
 }
-mockServer.onClientMessageReceived(JSON.stringify(connectionRequest));
+mockServer.onClientMessage(JSON.stringify(connectionRequest));
 
 function onServerMessageReceived(data: string) {
     const message: ServerMessage = JSON.parse(data);

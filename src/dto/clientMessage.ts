@@ -5,7 +5,7 @@ export enum CLIENT_MESSAGE_TYPE {
 }
 
 export interface ClientMessage<T=any> {
-    clientId: string;
+    playerId: string;
 
     type: CLIENT_MESSAGE_TYPE;
     data: T;
