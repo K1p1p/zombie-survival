@@ -9,5 +9,3 @@ Hence the '--skip-project' in package.json 'server' script
     ``` sh
     npm run file-server
     ```
-
-- Client TS imports need .js extension otherwise they won't be found during runtime.

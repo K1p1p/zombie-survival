@@ -1,7 +1,7 @@
-import Coordinates from "../core/browser/game/coordinates.js";
-import GameObject from "../core/browser/game/gameObject.js";
-import { lerp } from "../core/math/index.js";
-import Transform from "../core/transform.js";
+import Coordinates from "../core/browser/game/coordinates";
+import GameObject from "../core/browser/game/gameObject";
+import { lerp } from "../core/math/index";
+import Transform from "../core/transform";
 
 export default class HealthBar extends GameObject {
     private minWidth: number = 50;

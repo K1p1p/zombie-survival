@@ -1,4 +1,4 @@
-import { Dictionary } from "../core/helpers/dictionary.js";
+import { Dictionary } from "../core/helpers/dictionary";
 
 type Create<GameObject, DTO> = (data: DTO) => GameObject;
 type Update<GameObject, DTO> = (gameObject: GameObject, data: DTO) => void;

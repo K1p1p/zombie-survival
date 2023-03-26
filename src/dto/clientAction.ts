@@ -1,4 +1,4 @@
-import Vector from "../core/math/vector.js";
+import Vector from "../core/math/vector";
 
 export interface ClientPlayerAction {
     moveDirection: Vector;

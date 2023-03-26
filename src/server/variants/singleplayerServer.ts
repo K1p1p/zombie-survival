@@ -1,8 +1,8 @@
-import Server, { ServerMessageCallback } from '../server.js';
-import { ClientMessage } from '../../dto/clientMessage.js';
-import { ServerPlayerConnected } from '../../dto/serverNewConnection.js';
-import { ServerWorldUpdate } from '../../dto/serverUpdate.js';
-import { SERVER_MESSAGE_TYPE, ServerMessage } from '../../dto/serverMessage.js';
+import Server, { ServerMessageCallback } from '../server';
+import { ClientMessage } from '../../dto/clientMessage';
+import { ServerPlayerConnected } from '../../dto/serverNewConnection';
+import { ServerWorldUpdate } from '../../dto/serverUpdate';
+import { SERVER_MESSAGE_TYPE, ServerMessage } from '../../dto/serverMessage';
 
 export default class SingleplayerServer {
     private server: Server;

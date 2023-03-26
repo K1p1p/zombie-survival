@@ -1,34 +1,34 @@
-import Camera from "../core/browser/game/camera.js";
-import GameLoop from "../core/browser/game/gameLoop.js";
-import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard.js";
-import Mouse from "../core/browser/input/mouse.js";
-import Vector, { VectorZero } from "../core/math/vector.js";
+import Camera from "../core/browser/game/camera";
+import GameLoop from "../core/browser/game/gameLoop";
+import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard";
+import Mouse from "../core/browser/input/mouse";
+import Vector, { VectorZero } from "../core/math/vector";
 
-import CoordinateText from "./game/coordinateText.js";
+import CoordinateText from "./game/coordinateText";
 
-import Player from "./game/player.js";
-import Bullet from "./game/bullet.js";
-import Zombie from "./game/zombie.js";
+import Player from "./game/player";
+import Bullet from "./game/bullet";
+import Zombie from "./game/zombie";
 
-import GunUI from "./ui/gunUI.js";
-import FpsUI from "./ui/fpsUI.js";
+import GunUI from "./ui/gunUI";
+import FpsUI from "./ui/fpsUI";
 
-import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage.js";
-import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage.js";
+import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage";
+import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage";
 
-import { GameObjectEntityList } from "./gameObjectEntity.js";
+import { GameObjectEntityList } from "./gameObjectEntity";
 import PlayerModel from "../model/player";
 import ZombieModel from "../model/zombie";
 import { ClientPlayerAction } from "../dto/clientAction";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
-import SingleplayerServer from "../server/variants/singleplayerServer.js";
+import SingleplayerServer from "../server/variants/singleplayerServer";
 
-document.getElementById("respawn-button").onclick = requestRespawn;
+document.getElementById("respawn-button")!.onclick = requestRespawn;
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-const context: CanvasRenderingContext2D = canvas.getContext("2d");
+const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
 
 const game: GameLoop = new GameLoop(canvas, update, draw);
 
@@ -52,8 +52,8 @@ const zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
 
 const bullets: Bullet[] = [];
 
-let player: Player = null;
-let playerEntity: Entity<PlayerModel> = null;
+let player: (Player | null) = null;
+let playerEntity: (Entity<PlayerModel> | null) = null;
 
 const playerRequest: ClientPlayerAction = {
     moveDirection: VectorZero(),
@@ -105,6 +105,8 @@ function updatePlayerInput() {
 }
 
 function update(deltaTime: number) {
+    if (!player) { return; }
+
     updatePlayerInput();
 
     player.update(deltaTime);
@@ -133,7 +135,7 @@ function draw(deltaTime: number) {
 
     // Draw other players
     otherPlayers.forEach((otherPlayer) => {
-        if (otherPlayer.id === playerEntity.id) { return; }
+        if (otherPlayer.id === playerEntity?.id) { return; }
 
         otherPlayer.gameObject.render(context);
     });
@@ -150,6 +152,8 @@ function draw(deltaTime: number) {
 
 // Request --------------------
 function sendUpdateToServer() {
+    if(!playerEntity) { return; }
+
     const payload: ClientMessage<ClientPlayerAction> = {
         playerId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
@@ -161,6 +165,7 @@ function sendUpdateToServer() {
 
 function requestRespawn() {
     if(!player) { return; }
+    if(!playerEntity) { return; }
     if(player.state.current.health > 0) { return }
 
     const request: ClientMessage = {
@@ -175,7 +180,7 @@ function requestRespawn() {
 const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
 
 const connectionRequest: ClientMessage = {
-    playerId: null,
+    playerId: "null",
     type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
     data: null
 }
@@ -194,12 +199,13 @@ function onServerMessageReceived(data: string) {
     }
 
     //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
+    if(!player) { return; }
 
     const serverData = message.data as unknown as ServerWorldUpdate;
 
     // Update player
     player.updateState(serverData.player.data);
-    document.getElementById("respawn-modal").style.display = (player.state.current.health > 0) ? "none" : "flex";
+    document.getElementById("respawn-modal")!.style.display = (player.state.current.health > 0) ? "none" : "flex";
 
     // Update map size
     map.width = serverData.world.map.width;

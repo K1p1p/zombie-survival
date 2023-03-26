@@ -1,4 +1,4 @@
-import Vector from "../../math/vector.js";
+import Vector from "../../math/vector";
 
 export default class Coordinates {
     public static pixelsPerMeter: number = Object.freeze(100);

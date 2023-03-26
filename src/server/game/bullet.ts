@@ -1,12 +1,12 @@
-import Vector from "../../core/math/vector.js";
-import Transform from "../../core/transform.js";
-import Zombie from "./zombie.js";
-import Line from "../../core/geometry/line.js";
-import INetworkObject from "../networkObject.js";
+import Vector, { VectorZero } from "../../core/math/vector";
+import Transform from "../../core/transform";
+import Zombie from "./zombie";
+import Line from "../../core/geometry/line";
+import INetworkObject from "../networkObject";
 import BulletModel from "../../model/bullet";
 
 export default class Bullet extends Transform implements INetworkObject {
-    private endPosition: Vector;
+    private endPosition: Vector = VectorZero();
     private maxDistance: number = 8;
 
     public get collider(): Line { 
@@ -22,7 +22,7 @@ export default class Bullet extends Transform implements INetworkObject {
         this.setDirection(direction);
     }
 
-    collisionCheck(zombies: Zombie[]): { zombie: Zombie, zombieIndex: number} {
+    collisionCheck(zombies: Zombie[]): { zombie: Zombie, zombieIndex: number} | null {
         // Project trajectory
         this.endPosition = {
             x: (this.position.x + (this.direction.x * this.maxDistance)),
@@ -51,7 +51,8 @@ export default class Bullet extends Transform implements INetworkObject {
 
         if(zombieHit) {
             // Reposition bullet
-            this.endPosition  = zombieHit.position;
+            // @ts-ignore
+            this.endPosition  = zombieHit.position!;
 
             return {
                 zombie: zombieHit,

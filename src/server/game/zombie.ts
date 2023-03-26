@@ -1,9 +1,9 @@
-import Transform from "../../core/transform.js";
-import Vector from "../../core/math/vector.js";
-import INetworkObject from "../networkObject.js";
+import Transform from "../../core/transform";
+import Vector from "../../core/math/vector";
+import INetworkObject from "../networkObject";
 import ZombieModel from "../../model/zombie";
 import Entity from "../../dto/entity";
-import Circle from "../../core/geometry/circle.js";
+import Circle from "../../core/geometry/circle";
 
 // Common zombie
 export default class Zombie extends Transform implements INetworkObject {

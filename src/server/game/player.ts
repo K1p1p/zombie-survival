@@ -1,12 +1,12 @@
-import Vector, { VectorZero } from "../../core/math/vector.js";
-import Gun from "./gun.js";
-import Bullet from "./bullet.js";
-import INetworkObject from "../networkObject.js";
-import Transform from "../../core/transform.js";
+import Vector, { VectorZero } from "../../core/math/vector";
+import Gun from "./gun";
+import Bullet from "./bullet";
+import INetworkObject from "../networkObject";
+import Transform from "../../core/transform";
 import PlayerModel from "../../model/player";
 import { ClientPlayerAction } from "../../dto/clientAction";
 import Entity from "../../dto/entity";
-import Circle from "../../core/geometry/circle.js";
+import Circle from "../../core/geometry/circle";
 import Server from "../server";
 
 export default class Player extends Transform implements INetworkObject {

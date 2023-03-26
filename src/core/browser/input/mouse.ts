@@ -1,5 +1,5 @@
-import Vector, { VectorZero } from "../../math/vector.js";
-import { ButtonStateHandler } from "./buttonStateHandler.js";
+import Vector, { VectorZero } from "../../math/vector";
+import { ButtonStateHandler } from "./buttonStateHandler";
 
 export default class Mouse {
     private static buttonHandler: ButtonStateHandler = new ButtonStateHandler();
@@ -31,12 +31,12 @@ export default class Mouse {
         return Mouse.buttonHandler.getKeyUp(button.toString());
     }
 
-    public static getScreenPosition(): undefined | Vector {
-        if(Mouse.lastState === undefined) { return VectorZero(); }
+    public static getScreenPosition(): Vector {
+        if(!Mouse.lastState) { return VectorZero(); }
 
         return {
-            x: this.lastState.pageX,
-            y: this.lastState.pageY,
+            x: this.lastState!.pageX,
+            y: this.lastState!.pageY,
         }
     }
 }

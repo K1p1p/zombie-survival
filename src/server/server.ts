@@ -1,20 +1,20 @@
-import Loop from "../core/loop.js";
-import Vector, { VectorZero } from "../core/math/vector.js";
-import Player from "./game/player.js";
-import Bullet from "./game/bullet.js";
-import Zombie from "./game/zombie.js";
-import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage.js";
-import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage.js";
-import { Dictionary } from "../core/helpers/dictionary.js";
-import BulletModel from "../model/bullet.js";
-import PlayerModel from "../model/player.js";
-import ZombieModel from "../model/zombie.js";
-import { ClientPlayerAction } from "../dto/clientAction.js";
-import { ServerPlayerConnected } from "../dto/serverNewConnection.js";
-import { ServerWorld, ServerWorldUpdate } from "../dto/serverUpdate.js";
-import Entity from "../dto/entity.js";
-import Circle from "../core/geometry/circle.js";
-import Gun from "./game/gun.js";
+import Loop from "../core/loop";
+import Vector, { VectorZero } from "../core/math/vector";
+import Player from "./game/player";
+import Bullet from "./game/bullet";
+import Zombie from "./game/zombie";
+import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage";
+import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage";
+import { Dictionary } from "../core/helpers/dictionary";
+import BulletModel from "../model/bullet";
+import PlayerModel from "../model/player";
+import ZombieModel from "../model/zombie";
+import { ClientPlayerAction } from "../dto/clientAction";
+import { ServerPlayerConnected } from "../dto/serverNewConnection";
+import { ServerWorld, ServerWorldUpdate } from "../dto/serverUpdate";
+import Entity from "../dto/entity";
+import Circle from "../core/geometry/circle";
+import Gun from "./game/gun";
 
 export type ServerMessageCallback = (data: string) => void;
 
@@ -60,7 +60,7 @@ export default class Server {
         // Update zombies
         this.zombies.forEach((zombie) => {
             // Get nearest alive player
-            let nearestPlayer: Player = null;
+            let nearestPlayer: (Player | undefined) = undefined;
             let nearestPlayerDistance: number = Number.POSITIVE_INFINITY;
             Object.values(this.players).forEach((player) => {
                 if (!player.isAlive) {
@@ -81,10 +81,12 @@ export default class Server {
             // Update zombie
             zombie.update(deltaTime, nearestPlayer);
 
-            if (nearestPlayer) {
+            if (nearestPlayer != undefined) {
                 // Check collision with player, then damages it
+                // @ts-ignore
                 const playerCollider: Circle = nearestPlayer.collider;
                 if (Circle.intersectsSphere(zombie.collider, playerCollider)) {
+                    // @ts-ignore
                     nearestPlayer.health -= zombie.attackPower * deltaTime;
                 }
             }
@@ -118,22 +120,23 @@ export default class Server {
         }
     }
 
-    createBullet(newBullet: Bullet, gun: Gun) {
-        if (newBullet) {
-            const hit = newBullet.collisionCheck(this.zombies);
+    createBullet(newBullet: (Bullet | null), gun: (Gun | null)) {
+        if (!gun) { return; }
+        if (!newBullet) { return; }
 
-            if (hit) {
-                // Damage zombie
-                hit.zombie.health -= gun.attackPower;
+        const hit = newBullet.collisionCheck(this.zombies);
 
-                if (hit.zombie.health <= 0) {
-                    // Destroy zombie
-                    this.zombies.splice(hit.zombieIndex, 1);
-                }
+        if (hit) {
+            // Damage zombie
+            hit.zombie.health -= gun.attackPower;
+
+            if (hit.zombie.health <= 0) {
+                // Destroy zombie
+                this.zombies.splice(hit.zombieIndex, 1);
             }
-
-            this.bullets.push(newBullet);
         }
+
+        this.bullets.push(newBullet);
     }
 
     public onClientMessageReceived(data: string) {

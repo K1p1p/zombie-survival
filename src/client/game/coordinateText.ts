@@ -1,4 +1,4 @@
-import GameObject from "../../core/browser/game/gameObject.js";
+import GameObject from "../../core/browser/game/gameObject";
 
 export default class CoordinateText extends GameObject {
     render(context: CanvasRenderingContext2D): void {

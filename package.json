@@ -10,15 +10,18 @@
     "ws": "^8.12.1"
   },
   "scripts": {
-    "build": "npm run clean && tsc --build && npm run move-deps-to-build",
+    "build": "npm run clean && npx webpack && npm run move-deps-to-build",
     "clean": "@powershell ./scripts/clean.ps1",
     "move-deps-to-build": "@powershell ./scripts/copy-client-html.ps1 && @powershell ./scripts/copy-assets.ps1",
     "file-server": "node ./node_modules/serve/build/main.js ./",
     "client": "start http://localhost:3000/dist/",
-    "server": "ts-node --skip-project ./src/server/index"
+    "server": "ts-node --skip-project ./src/server/variants/multiplayerServer.ts"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.0",
-    "@types/ws": "^8.5.4"
+    "@types/ws": "^8.5.4",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1"
   }
 }

@@ -1,5 +1,5 @@
 import Vector from "../core/math/vector";
-import TransformModel from "./transform.js";
+import TransformModel from "./transform";
 
 export default interface BulletModel {
     transform: TransformModel;

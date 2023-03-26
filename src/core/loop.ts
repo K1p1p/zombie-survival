@@ -9,7 +9,7 @@ export default class Loop {
     private timer: NodeJS.Timer;
     private action: (LoopAction | undefined);
 
-    private _deltaTime: number;
+    private _deltaTime: number = 0;
     public get deltaTime(): number { return this._deltaTime;  }
 
     public constructor(fps: number, action?: LoopAction) {

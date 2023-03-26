@@ -6,11 +6,12 @@
       "es6",
       "DOM" // Allow browser class types
     ],
-    "sourceMap": true,
-    "outDir": "dist"
+    "sourceMap": false,
+    "outDir": "dist",
+    "strictNullChecks": true,
   },
   "exclude": [
     "node_modules",
-    //"src/server"
+    "src/server/variants/multiplayerServer.ts"
   ]
 }

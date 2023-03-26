@@ -1,8 +1,8 @@
 export default class Vector {
-    x: number;
-    y: number;
+    x: number = 0;
+    y: number = 0;
 
-    public static moveTowards(current: Vector, target: Vector, maxDelta): Vector {
+    public static moveTowards(current: Vector, target: Vector, maxDelta: number): Vector {
         const deltaX = (target.x - current.x);
         const deltaY = (target.y - current.y);
         const magnitude = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));

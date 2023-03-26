@@ -1,10 +1,10 @@
-import GameObject from "../../core/browser/game/gameObject.js";
-import { angleLerp } from "../../core/math/index.js";
-import Vector from "../../core/math/vector.js";
+import GameObject from "../../core/browser/game/gameObject";
+import { angleLerp } from "../../core/math/index";
+import Vector from "../../core/math/vector";
 import PlayerModel from "../../model/player";
-import HealthBar from "../healthBar.js";
-import ModelStateHandler from "../modelStateHandler.js";
-import Gun from "./gun.js";
+import HealthBar from "../healthBar";
+import ModelStateHandler from "../modelStateHandler";
+import Gun from "./gun";
 
 export default class Player extends GameObject {
     public state: ModelStateHandler<PlayerModel>;

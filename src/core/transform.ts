@@ -1,4 +1,4 @@
-import Vector, { VectorZero } from "./math/vector.js";
+import Vector, { VectorZero } from "./math/vector";
 
 export default class Transform {
     private _position: Vector;

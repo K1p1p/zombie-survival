@@ -1,4 +1,4 @@
-import { ButtonStateHandler } from "./buttonStateHandler.js";
+import { ButtonStateHandler } from "./buttonStateHandler";
 
 export enum KeyboardKey {
     ArrowUp = "ArrowUp",

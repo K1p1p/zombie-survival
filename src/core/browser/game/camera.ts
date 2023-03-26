@@ -1,5 +1,5 @@
-import Vector, { VectorZero } from "../../math/vector.js";
-import Coordinates from "./coordinates.js";
+import Vector, { VectorZero } from "../../math/vector";
+import Coordinates from "./coordinates";
 
 export default class Camera {
     private static canvas: HTMLCanvasElement;

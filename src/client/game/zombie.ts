@@ -1,9 +1,9 @@
-import GameObject from "../../core/browser/game/gameObject.js";
-import { angleLerp } from "../../core/math/index.js";
-import Vector from "../../core/math/vector.js";
+import GameObject from "../../core/browser/game/gameObject";
+import { angleLerp } from "../../core/math/index";
+import Vector from "../../core/math/vector";
 import ZombieModel from "../../model/zombie";
-import HealthBar from "../healthBar.js";
-import ModelStateHandler from "../modelStateHandler.js";
+import HealthBar from "../healthBar";
+import ModelStateHandler from "../modelStateHandler";
 
 export default class Zombie extends GameObject {
     public state: ModelStateHandler<ZombieModel>;

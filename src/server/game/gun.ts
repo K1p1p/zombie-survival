@@ -1,13 +1,13 @@
-import Transform from "../../core/transform.js";
+import Transform from "../../core/transform";
 import GunModel from "../../model/gun";
 import INetworkObject from "../networkObject";
-import Bullet from "./bullet.js";
+import Bullet from "./bullet";
 
 export default class Gun implements INetworkObject {
     public ammo: number = 6;
     public ammoCapacity: number = 6;
     public reloadTime: number = 1000; // ms
-    public isReloading: boolean;
+    public isReloading: boolean = false;
 
     public attackPower: number = 1;
 

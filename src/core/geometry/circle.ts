@@ -1,5 +1,5 @@
-import Vector from "../math/vector.js";
-import Line from "./line.js";
+import Vector from "../math/vector";
+import Line from "./line";
 
 export default class Circle {
     radius: number;

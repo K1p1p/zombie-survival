@@ -1,8 +1,8 @@
-import Camera from "../../core/browser/game/camera.js";
-import GameObject from "../../core/browser/game/gameObject.js";
-import Vector from "../../core/math/vector.js";
+import Camera from "../../core/browser/game/camera";
+import GameObject from "../../core/browser/game/gameObject";
+import Vector from "../../core/math/vector";
 import BulletModel from "../../model/bullet";
-import SoundManager from "./soundManager.js";
+import SoundManager from "./soundManager";
 
 export default class Bullet extends GameObject {
     private endPosition: Vector;

@@ -1,4 +1,4 @@
-import { Dictionary } from "../../helpers/dictionary.js";
+import { Dictionary } from "../../helpers/dictionary";
 
 export type KeyState = "preparePress" | "pressed" | "hold" | "prepareRelease" | "released"
 
