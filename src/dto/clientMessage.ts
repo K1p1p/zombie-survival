@@ -1,6 +1,7 @@
 export enum CLIENT_MESSAGE_TYPE {
     REQUEST_CONNECTION,
-    UPDATE
+    REQUEST_RESPAWN,
+    UPDATE,
 }
 
 export interface ClientMessage<T=any> {

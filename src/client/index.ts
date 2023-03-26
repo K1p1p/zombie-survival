@@ -26,6 +26,8 @@ import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
 
+document.getElementById("respawn-button").onclick = requestRespawn;
+
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext("2d");
 
@@ -100,7 +102,7 @@ function updatePlayerInput() {
     }
 
     // Send request to server
-    sendRequestToServer();
+    sendUpdateToServer();
 }
 
 function update(deltaTime: number) {
@@ -148,7 +150,7 @@ function draw(deltaTime: number) {
 }
 
 // Request --------------------
-function sendRequestToServer() {
+function sendUpdateToServer() {
     const payload: ClientMessage<ClientPlayerAction> = {
         clientId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
@@ -161,6 +163,18 @@ function sendRequestToServer() {
     playerRequest.moveDirection = VectorZero();
     playerRequest.shoot = false;
     playerRequest.reload = false;
+}
+
+function requestRespawn() {
+    if(!player) { return; }
+    if(player.state.current.health > 0) { return }
+
+    const request: ClientMessage = {
+        clientId: playerEntity.id,
+        type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
+        data: null
+    }
+    mockServer.onClientMessageReceived(JSON.stringify(request));
 }
 
 // Server --------------------
@@ -191,6 +205,7 @@ function onServerMessageReceived(data: string) {
 
     // Update player
     player.updateState(serverData.player.data);
+    document.getElementById("respawn-modal").style.display = (player.state.current.health > 0) ? "none" : "flex";
 
     // Update map size
     map.width = serverData.world.map.width;

@@ -157,6 +157,12 @@ export default class MockServer {
                 this.mockSocket_sendToClient(JSON.stringify(payload));
             break;
 
+            case CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN:
+                if(!this.mockClient_player.isAlive){
+                    this.players[this.mockClient_id] = new Player(VectorZero());
+                }
+            break;
+
             case CLIENT_MESSAGE_TYPE.UPDATE:
                 const clientData = message.data as unknown as ClientPlayerAction;
                 this.players[message.clientId]?.clientUpdate(clientData);

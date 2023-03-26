@@ -11,8 +11,9 @@ import Circle from "../../core/geometry/circle.js";
 
 export default class Player extends Transform implements INetworkObject {
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
-    public maxHealth: number = 10;
+    public maxHealth: number = 1;
     public health: number = this.maxHealth;
+    public get isAlive(): boolean { return this.health > 0 }
     public get collider(): Circle { 
         return {
             position: this.position,
@@ -46,6 +47,8 @@ export default class Player extends Transform implements INetworkObject {
     }
 
     update(deltaTime: number, server: MockServer) {
+        if(!this.isAlive) { return; }
+
         const normalizedDir: Vector = Vector.normalize(this.actionBuffer.moveDirection);
         const step = (this.speed * deltaTime);
     
