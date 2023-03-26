@@ -16,7 +16,7 @@ import Entity from "../dto/entity";
 import Circle from "../core/geometry/circle";
 import Gun from "./game/gun";
 
-export type ServerMessageCallback = (data: string) => void;
+export type ServerMessageCallback = (data: string, webSocketId?: string) => void;
 
 export default class Server {
     public mapWidth: number = 20;
@@ -108,15 +108,17 @@ export default class Server {
         };
 
         for (let key in this.players) {
+            const player: Player = this.players[key];
+
             const message: ServerMessage<ServerWorldUpdate> = {
                 type: SERVER_MESSAGE_TYPE.UPDATE,
                 data: {
-                    player: this.players[key].toModel(),
+                    player: player.toModel(),
                     world: world,
                 },
             };
 
-            this.sendMessage(JSON.stringify(message));
+            this.sendMessage(JSON.stringify(message), player.webSocketId);
         }
     }
 
@@ -139,13 +141,15 @@ export default class Server {
         this.bullets.push(newBullet);
     }
 
-    public onClientMessageReceived(data: string) {
+    public onClientMessageReceived(data: string, webSocketId?: string) {
         const message: ClientMessage = JSON.parse(data);
+        const player: Player = this.players[message.playerId];
 
         switch (message.type) {
             case CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION:
                 {
                     const newPlayer: Player = new Player(VectorZero());
+                    newPlayer.webSocketId = webSocketId;
 
                     this.players[newPlayer.id] = newPlayer;
 
@@ -156,29 +160,30 @@ export default class Server {
                         },
                     };
 
-                    this.sendMessage(JSON.stringify(payload));
+                    this.sendMessage(JSON.stringify(payload), newPlayer?.webSocketId);
                 }
             break;
 
             case CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN:
                 {
-                    const player: Player = this.players[message.playerId];
-
-                    if (!player) {
-                        return;
-                    }
-                    if (player.isAlive) {
-                        return;
-                    }
+                    if (!player) { return; }
+                    if (player.isAlive) { return; }
 
                     // Reset position and health
-                    player.position = VectorZero();
                     player.health = player.maxHealth;
+                    player.position = {
+                        x: Math.random() * this.mapWidth - this.mapWidth / 2,
+                        y: Math.random() * this.mapHeight - this.mapHeight / 2,
+                    };
                 }
                 break;
 
             case CLIENT_MESSAGE_TYPE.UPDATE:
+                if (!player) { return; }
+                if (!player.isAlive) { return; }
+
                 const clientData = message.data as unknown as ClientPlayerAction;
+
                 this.players[message.playerId]?.clientUpdate(clientData);
                 break;
         }

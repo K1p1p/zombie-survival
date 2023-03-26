@@ -10,6 +10,8 @@ import Circle from "../../core/geometry/circle";
 import Server from "../server";
 
 export default class Player extends Transform implements INetworkObject {
+    public webSocketId?: string;
+
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public maxHealth: number = 1;
     public health: number = this.maxHealth;

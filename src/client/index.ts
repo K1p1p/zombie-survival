@@ -160,7 +160,7 @@ function sendUpdateToServer() {
         data: playerRequest
     };
 
-    mockServer.onClientMessage(JSON.stringify(payload));
+    sendMessage(JSON.stringify(payload));
 }
 
 function requestRespawn() {
@@ -173,18 +173,10 @@ function requestRespawn() {
         type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
         data: null
     }
-    mockServer.onClientMessage(JSON.stringify(request));
+    sendMessage(JSON.stringify(request));
 }
 
-// Server --------------------
-const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
-
-const connectionRequest: ClientMessage = {
-    playerId: "null",
-    type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
-    data: null
-}
-mockServer.onClientMessage(JSON.stringify(connectionRequest));
+//---------------------------- SERVER ----------------------------
 
 function onServerMessageReceived(data: string) {
     const message: ServerMessage = JSON.parse(data);
@@ -200,6 +192,7 @@ function onServerMessageReceived(data: string) {
 
     //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
     if(!player) { return; }
+    if(!playerEntity) { return; }
 
     const serverData = message.data as unknown as ServerWorldUpdate;
 
@@ -227,4 +220,44 @@ function onServerMessageReceived(data: string) {
     playerRequest.moveDirection = VectorZero();
     playerRequest.shoot = false;
     playerRequest.reload = false;
+}
+
+//---------------------------- SINGLEPLAYER SERVER ----------------------------
+/*const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
+
+const connectionRequest: ClientMessage = {
+    playerId: "null",
+    type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
+    data: null
+}
+
+sendMessage(JSON.stringify(connectionRequest));
+
+function sendMessage(data: string) {
+    mockServer.onClientMessage(data);
+}
+*/
+//---------------------------- MULTIPLAYER SERVER ----------------------------
+
+const webSocket = new WebSocket('ws://localhost:2222/');
+
+webSocket.onmessage = async (event: MessageEvent) => {
+    onServerMessageReceived(event.data.toString());
+};
+webSocket.onopen = async () => {
+    const connectionRequest: ClientMessage = {
+        playerId: "null",
+        type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
+        data: null
+    }
+
+    if (webSocket.readyState === WebSocket.OPEN) {
+        webSocket.send(JSON.stringify(connectionRequest));
+    } else {
+        console.warn("webSocket is not connected");
+    }
+};
+
+function sendMessage(data: string) {
+    webSocket.send(data);
 }
