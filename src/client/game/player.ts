@@ -1,3 +1,4 @@
+import Camera from "../../core/browser/game/camera";
 import GameObject from "../../core/browser/game/gameObject";
 import { angleLerp } from "../../core/math/index";
 import Vector from "../../core/math/vector";
@@ -11,6 +12,8 @@ export default class Player extends GameObject {
 
     public gun: Gun;
 
+    private colliderRadius: number = 0.1;
+
     private healthBar: HealthBar;
 
     constructor(data: PlayerModel) {
@@ -23,7 +26,7 @@ export default class Player extends GameObject {
         this.state = new ModelStateHandler<PlayerModel>(data);
         this.gun = new Gun(data.gun);
 
-        this.healthBar = new HealthBar(this, 0.1, data.maxHealth, data.health);
+        this.healthBar = new HealthBar(this, this.colliderRadius, data.maxHealth, data.health);
     }
 
     public update(deltaTime: number) {
@@ -70,5 +73,17 @@ export default class Player extends GameObject {
         context.closePath();
 
         this.healthBar.render(context);
+
+        // Draw nickname
+        context.beginPath();
+        const namePos: Vector = Camera.projectWorldToPixels({
+            x: this.position.x,
+            y: this.position.y - this.colliderRadius
+        });
+        context.fillStyle = "black";
+        context.resetTransform();
+        context.translate(namePos.x, namePos.y);
+        context.fillText(this.state.current.nickname, 0, 0);
+        context.closePath();
     }
 }

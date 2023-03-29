@@ -15,6 +15,7 @@ import { ServerWorld, ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
 import Circle from "../core/geometry/circle";
 import Gun from "./game/gun";
+import { ClientPlayerConnectionRequest } from "../dto/clientConnectionRequest";
 
 export type ServerMessageCallback = (data: string, webSocketId?: string) => void;
 
@@ -148,7 +149,9 @@ export default class Server {
         switch (message.type) {
             case CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION:
                 {
-                    const newPlayer: Player = new Player(VectorZero());
+                    const clientData = message.data as unknown as ClientPlayerConnectionRequest;
+
+                    const newPlayer: Player = new Player(clientData.nickname);
                     newPlayer.webSocketId = webSocketId;
 
                     this.players[newPlayer.id] = newPlayer;

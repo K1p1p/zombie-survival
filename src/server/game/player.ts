@@ -12,6 +12,8 @@ import Server from "../server";
 export default class Player extends Transform implements INetworkObject {
     public webSocketId?: string;
 
+    public nickname: string;
+
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public maxHealth: number = 1;
     public health: number = this.maxHealth;
@@ -34,9 +36,10 @@ export default class Player extends Transform implements INetworkObject {
         reload: false
     }
 
-    constructor(position?: Vector, rotation?: number, direction?: Vector) {
+    constructor(nickname: string, position?: Vector, rotation?: number, direction?: Vector) {
         super(position, rotation, direction);
 
+        this.nickname = nickname;
         this.gun = new Gun(this);
     }
 
@@ -77,6 +80,7 @@ export default class Player extends Transform implements INetworkObject {
         return {
             id: this.id,
             data: {
+                nickname: this.nickname,
                 health: this.health,
                 maxHealth: this.maxHealth,
                 speed: this.speed,

@@ -24,6 +24,7 @@ import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
 import SingleplayerServer from "../server/variants/singleplayerServer";
+import { ClientPlayerConnectionRequest } from "../dto/clientConnectionRequest";
 
 document.getElementById("respawn-button")!.onclick = requestRespawn;
 
@@ -52,6 +53,7 @@ const zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
 
 const bullets: Bullet[] = [];
 
+const playerNickname: string = prompt("Nickname", 'Guest') ?? 'Guest';
 let player: (Player | null) = null;
 let playerEntity: (Entity<PlayerModel> | null) = null;
 
@@ -244,10 +246,12 @@ webSocket.onmessage = async (event: MessageEvent) => {
     onServerMessageReceived(event.data.toString());
 };
 webSocket.onopen = async () => {
-    const connectionRequest: ClientMessage = {
+    const connectionRequest: ClientMessage<ClientPlayerConnectionRequest> = {
         playerId: "null",
         type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
-        data: null
+        data: {
+            nickname: playerNickname
+        }
     }
 
     if (webSocket.readyState === WebSocket.OPEN) {
