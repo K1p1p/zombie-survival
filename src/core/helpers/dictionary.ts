@@ -1,0 +1,1 @@
+export type Dictionary<Value> = { [index: string]: Value; };

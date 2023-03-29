@@ -15,4 +15,13 @@ export function lerp(from: number, to: number, t: number) {
     return from + ((to - from) * t);
 }
 
+// [Source] https://gist.github.com/shaunlebron/8832585
+export function angleLerp(current: number, target:number, t: number) {
+    function shortAngleDist(current: number, target: number) {
+        var max = Math.PI * 2;
+        var delta = (target - current) % max;
+        return (((2 * delta) % max) - delta);
+    }
 
+    return (current + (shortAngleDist(current,target) * t));
+}

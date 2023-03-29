@@ -1,8 +1,10 @@
+import { Dictionary } from "../../helpers/dictionary";
+
 export type KeyState = "preparePress" | "pressed" | "hold" | "prepareRelease" | "released"
 
 /** Handles input keys basic states. Checks all keys as lowercase. */
 export class ButtonStateHandler {
-    private keys: { [index: string]: KeyState; } = {}; // Dictionary
+    private keys: Dictionary<KeyState> = {};
 
     /** Prevent uppercase and shift+key. Which kept button stuck */
     private sanitizeKey(key: string): string {

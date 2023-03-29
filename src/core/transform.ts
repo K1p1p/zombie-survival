@@ -1,4 +1,4 @@
-import Vector, { VectorZero } from "./math/vector.js";
+import Vector, { VectorZero } from "./math/vector";
 
 export default class Transform {
     private _position: Vector;
@@ -13,7 +13,7 @@ export default class Transform {
     public set rotation(radians : number) { this.setRotation(radians); }
     public set direction(vector : Vector) { this.setDirection(vector); }
 
-    constructor(position: Vector, rotation: number = 0, direction: Vector = VectorZero()) {
+    constructor(position: Vector = VectorZero(), rotation: number = 0, direction: Vector = VectorZero()) {
         this._position = position;
         this._rotation = rotation;
         this._direction = direction;

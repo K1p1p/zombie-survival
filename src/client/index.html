@@ -1,10 +1,45 @@
 <html>
     <head>
         <script>var exports = {};</script>
-        <script type="module" src="./client/index.js" defer></script>
+        <script type="module" src="./bundle.js" defer></script>
     </head>
 
     <body>
         <canvas id="canvas" width="800" height="800" style="width: 100%; height: 100%;"></canvas>
+
+        <div 
+            id="respawn-modal"
+            style="
+                display: none; 
+                position: absolute; 
+                top: 0px; 
+                bottom: 0px; 
+                left: 0px; 
+                right: 0px; 
+                background-color: rgba(0, 0, 0, 0.80); 
+                justify-content: center;"
+        >
+            <div 
+                style="
+                    display: flex; 
+                    flex-direction: column; 
+                    background-color: white; 
+                    min-width: 400px; 
+                    height: 200px; 
+                    border-radius: 15px; 
+                    margin-top: 50px; 
+                    align-items: center; 
+                    justify-content: center;"
+            >
+                YOU DIED
+
+                <button 
+                    id="respawn-button" 
+                    style="margin-top: 25px;"
+                >
+                    RESPAWN
+                </button>
+            </div>
+        </div>
     </body>
 </html>

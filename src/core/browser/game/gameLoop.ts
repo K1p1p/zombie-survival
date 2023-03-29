@@ -1,7 +1,7 @@
-import Camera from "./camera.js";
-import Mouse from "../input/mouse.js";
-import Keyboard from "../input/keyboard.js";
-import Loop, { LoopAction } from "../../loop.js";
+import Camera from "./camera";
+import Mouse from "../input/mouse";
+import Keyboard from "../input/keyboard";
+import Loop, { LoopAction } from "../../loop";
 
 export default class GameLoop {
     private canvas: HTMLCanvasElement;
@@ -16,7 +16,7 @@ export default class GameLoop {
     constructor(canvas: HTMLCanvasElement, update: LoopAction, draw: LoopAction) {
         // Canvas data
         this.canvas = canvas;
-        this.context = canvas.getContext("2d");
+        this.context = canvas.getContext("2d")!;
 
         // Loops
         this.logicLoop     = new Loop(60, this.logic.bind(this));

@@ -1,9 +1,9 @@
-import Vector from "../math/vector.js";
-import Circle from "./circle.js";
+import Vector, { VectorZero } from "../math/vector";
+import Circle from "./circle";
 
 export default class Line {
-    start: Vector;
-    end: Vector;
+    start: Vector = VectorZero();
+    end: Vector = VectorZero();
 
     public static intersectsVector(line: Line, vector: Vector): boolean {
         if (line.start.x != line.end.x) {

@@ -1,4 +1,4 @@
-import { ButtonStateHandler } from "./buttonStateHandler.js";
+import { ButtonStateHandler } from "./buttonStateHandler";
 
 export enum KeyboardKey {
     ArrowUp = "ArrowUp",
@@ -10,6 +10,8 @@ export enum KeyboardKey {
     A = "a",
     S = "s",
     D = "d",
+
+    R = "r",
 }
 
 export default class Keyboard {

@@ -1,8 +1,8 @@
-import Transform from "../../transform.js";
-import Vector from "../../math/vector.js";
-import Camera from "./camera.js";
+import Transform from "../../transform";
+import Vector from "../../math/vector";
+import Camera from "./camera";
 
-export default class GameObject extends Transform {
+export default abstract class GameObject extends Transform {
     render(context: CanvasRenderingContext2D): void {
         const canvasPos: Vector = Camera.projectWorldToPixels(this.position);
 
