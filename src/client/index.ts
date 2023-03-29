@@ -19,7 +19,7 @@ import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage";
 import { GameObjectEntityList } from "./gameObjectEntity";
 import PlayerModel from "../model/player";
 import ZombieModel from "../model/zombie";
-import { ClientPlayerAction } from "../dto/clientAction";
+import { ClientPlayerUpdate } from "../dto/clientUpdate";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
@@ -55,7 +55,7 @@ const bullets: Bullet[] = [];
 let player: (Player | null) = null;
 let playerEntity: (Entity<PlayerModel> | null) = null;
 
-const playerRequest: ClientPlayerAction = {
+const playerRequest: ClientPlayerUpdate = {
     moveDirection: VectorZero(),
     rotation: 0,
     shoot: false,
@@ -151,7 +151,7 @@ function draw(deltaTime: number) {
 function sendUpdateToServer() {
     if(!playerEntity) { return; }
 
-    const payload: ClientMessage<ClientPlayerAction> = {
+    const payload: ClientMessage<ClientPlayerUpdate> = {
         playerId: playerEntity.id,
         type: CLIENT_MESSAGE_TYPE.UPDATE,
         data: playerRequest

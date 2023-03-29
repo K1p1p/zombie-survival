@@ -4,7 +4,7 @@ import Bullet from "./bullet";
 import INetworkObject from "../networkObject";
 import Transform from "../../core/transform";
 import PlayerModel from "../../model/player";
-import { ClientPlayerAction } from "../../dto/clientAction";
+import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
 import Circle from "../../core/geometry/circle";
 import Server from "../server";
@@ -27,7 +27,7 @@ export default class Player extends Transform implements INetworkObject {
 
     protected speed: number = 1;
 
-    private actionBuffer: ClientPlayerAction = {
+    private actionBuffer: ClientPlayerUpdate = {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
@@ -67,7 +67,7 @@ export default class Player extends Transform implements INetworkObject {
         this.resetActionBuffer();
     }
 
-    clientUpdate(data: ClientPlayerAction) {
+    clientUpdate(data: ClientPlayerUpdate) {
         data.moveDirection = Vector.normalize(data.moveDirection); // Sanitize input
 
         this.actionBuffer = data;

@@ -9,7 +9,7 @@ import { Dictionary } from "../core/helpers/dictionary";
 import BulletModel from "../model/bullet";
 import PlayerModel from "../model/player";
 import ZombieModel from "../model/zombie";
-import { ClientPlayerAction } from "../dto/clientAction";
+import { ClientPlayerUpdate } from "../dto/clientUpdate";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorld, ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
@@ -182,7 +182,7 @@ export default class Server {
                 if (!player) { return; }
                 if (!player.isAlive) { return; }
 
-                const clientData = message.data as unknown as ClientPlayerAction;
+                const clientData = message.data as unknown as ClientPlayerUpdate;
 
                 this.players[message.playerId]?.clientUpdate(clientData);
                 break;
