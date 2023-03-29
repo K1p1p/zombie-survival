@@ -91,9 +91,12 @@ export default class Player extends Transform implements INetworkObject {
     }
 
     private resetActionBuffer() {
-        this.actionBuffer.moveDirection = VectorZero();
-        //this.actionBuffer.rotation = DO_NOT_CHANGE; // Keep rotation! Otherwise player rotates to zero when not moving!
+        // Let client decide the state of these:
+        // - moveDirection
+        // - rotation
+
+        // Reset these
         this.actionBuffer.shoot = false;
-        this.actionBuffer.reload = false;
+        this.actionBuffer.reload = false;;
     }
 }

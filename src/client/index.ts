@@ -99,9 +99,6 @@ function updatePlayerInput() {
             playerRequest.shoot = true;
         }
     }
-
-    // Send request to server
-    sendUpdateToServer();
 }
 
 function update(deltaTime: number) {
@@ -211,16 +208,17 @@ function onServerMessageReceived(data: string) {
 
     zombies.onServerUpdate(serverData.world.zombies);
     otherPlayers.onServerUpdate(serverData.world.players);
+}
 
-
-
-    //---------------------------- CLEAR ACTION BUFFER ----------------------------
+// Send updates to server
+setInterval(() => {
+    sendUpdateToServer();
 
     // Reset request buffer
     playerRequest.moveDirection = VectorZero();
     playerRequest.shoot = false;
     playerRequest.reload = false;
-}
+}, 100);
 
 //---------------------------- SINGLEPLAYER SERVER ----------------------------
 /*const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
