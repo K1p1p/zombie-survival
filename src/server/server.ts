@@ -140,8 +140,8 @@ export default class Server {
             this.sendMessage(JSON.stringify(message), player.webSocketId);
         }
 
-         // Debug
-        ServerDebug.displayLog(deltaTime, this);
+        // Debug
+        //ServerDebug.displayLog(deltaTime, this);
     }
 
     createBullet(newBullet: (Bullet | null), gun: (Gun | null)) {

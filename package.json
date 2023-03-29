@@ -13,8 +13,8 @@
     "build": "npm run clean && npx webpack && npm run move-deps-to-build",
     "clean": "@powershell ./scripts/clean.ps1",
     "move-deps-to-build": "@powershell ./scripts/copy-client-html.ps1 && @powershell ./scripts/copy-assets.ps1",
-    "file-server": "node ./node_modules/serve/build/main.js ./",
-    "client": "start http://localhost:3000/dist/",
+    "file-server": "node ./node_modules/serve/build/main.js ./ -p 2222",
+    "client": "start http://localhost:2222/dist/",
     "server": "ts-node --skip-project ./src/server/variants/multiplayerServer.ts"
   },
   "devDependencies": {

@@ -23,8 +23,9 @@ import { ClientPlayerUpdate } from "../dto/clientUpdate";
 import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
-import SingleplayerServer from "../server/variants/singleplayerServer";
-import { ClientPlayerConnectionRequest } from "../dto/clientConnectionRequest";
+
+import { MultiplayerGame } from "./server/multiplayerGame";
+import { SingleplayerGame } from "./server/singleplayerGame";
 
 document.getElementById("respawn-button")!.onclick = requestRespawn;
 
@@ -159,7 +160,7 @@ function sendUpdateToServer() {
         data: playerRequest
     };
 
-    sendMessage(JSON.stringify(payload));
+    server.sendMessage(JSON.stringify(payload));
 }
 
 function requestRespawn() {
@@ -172,7 +173,8 @@ function requestRespawn() {
         type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
         data: null
     }
-    sendMessage(JSON.stringify(request));
+
+    server.sendMessage(JSON.stringify(request));
 }
 
 //---------------------------- SERVER ----------------------------
@@ -222,45 +224,6 @@ setInterval(() => {
     playerRequest.reload = false;
 }, 100);
 
-//---------------------------- SINGLEPLAYER SERVER ----------------------------
-/*const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
-
-const connectionRequest: ClientMessage = {
-    playerId: "null",
-    type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
-    data: null
-}
-
-sendMessage(JSON.stringify(connectionRequest));
-
-function sendMessage(data: string) {
-    mockServer.onClientMessage(data);
-}
-*/
-//---------------------------- MULTIPLAYER SERVER ----------------------------
-//Example: ws://0.tcp.sa.ngrok.io:19922/
-const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
-const webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
-
-webSocket.onmessage = async (event: MessageEvent) => {
-    onServerMessageReceived(event.data.toString());
-};
-webSocket.onopen = async () => {
-    const connectionRequest: ClientMessage<ClientPlayerConnectionRequest> = {
-        playerId: "null",
-        type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
-        data: {
-            nickname: playerNickname
-        }
-    }
-
-    if (webSocket.readyState === WebSocket.OPEN) {
-        webSocket.send(JSON.stringify(connectionRequest));
-    } else {
-        console.warn("webSocket is not connected");
-    }
-};
-
-function sendMessage(data: string) {
-    webSocket.send(data);
-}
+//---------------------------- GAME SERVER ----------------------------
+// Chosse between [SingleplayerGame] and [MultiplayerGame]
+const server = new SingleplayerGame(playerNickname, onServerMessageReceived);
