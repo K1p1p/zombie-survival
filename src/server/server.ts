@@ -16,8 +16,25 @@ import Entity from "../dto/entity";
 import Circle from "../core/geometry/circle";
 import Gun from "./game/gun";
 import { ClientPlayerConnectionRequest } from "../dto/clientConnectionRequest";
+import FPSCounter from "../core/helpers/fpsCounter";
 
 export type ServerMessageCallback = (data: string, webSocketId?: string) => void;
+
+class ServerDebug {
+    private static counter = new FPSCounter();
+
+    public static displayLog(deltaTime: number, server: Server) {
+        ServerDebug.counter.update(deltaTime);
+
+        console.clear();
+
+        console.log(`
+        FPS: ${ServerDebug.counter.getFPS()}
+        Players: ${Object.entries(server.players).length}
+        Zombies: ${server.zombies.length}
+        `);
+    }
+} 
 
 export default class Server {
     public mapWidth: number = 20;
@@ -50,6 +67,7 @@ export default class Server {
         }, 2000);
     }
 
+    
     private update(deltaTime: number) {
         // Clear bullets array
         this.bullets.length = 0;
@@ -121,6 +139,9 @@ export default class Server {
 
             this.sendMessage(JSON.stringify(message), player.webSocketId);
         }
+
+         // Debug
+        ServerDebug.displayLog(deltaTime, this);
     }
 
     createBullet(newBullet: (Bullet | null), gun: (Gun | null)) {
