@@ -223,12 +223,14 @@ setInterval(() => {
 }, 100);
 
 //---------------------------- SINGLEPLAYER SERVER ----------------------------
-/*const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
+const mockServer: SingleplayerServer = new SingleplayerServer(onServerMessageReceived);
 
-const connectionRequest: ClientMessage = {
+const connectionRequest: ClientMessage<ClientPlayerConnectionRequest> = {
     playerId: "null",
     type: CLIENT_MESSAGE_TYPE.REQUEST_CONNECTION,
-    data: null
+    data: {
+        nickname: playerNickname
+    }
 }
 
 sendMessage(JSON.stringify(connectionRequest));
@@ -236,10 +238,9 @@ sendMessage(JSON.stringify(connectionRequest));
 function sendMessage(data: string) {
     mockServer.onClientMessage(data);
 }
-*/
+
 //---------------------------- MULTIPLAYER SERVER ----------------------------
-//Example: ws://0.tcp.sa.ngrok.io:19922/
-const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
+/*const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
 const webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
 
 webSocket.onmessage = async (event: MessageEvent) => {
@@ -263,4 +264,4 @@ webSocket.onopen = async () => {
 
 function sendMessage(data: string) {
     webSocket.send(data);
-}
+}*/
