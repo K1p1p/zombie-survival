@@ -14,6 +14,11 @@ I use [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-serv
 npm run file-server
 ```
 
+# Node modules
+``` sh
+npm install
+```
+
 # Client
 ## Modes
 ### Singleplayer
@@ -48,3 +53,9 @@ tcp://0.tcp.sa.ngrok.io:XXXXXX/<br>
 To:<br>
 
 ws://0.tcp.sa.ngrok.io:XXXXXX/<br>
+
+<br>
+<br>
+<br>
+
+# [#Game assets](https://github.com/K1p1p/zombie-survival/blob/main/assets-source.md)
