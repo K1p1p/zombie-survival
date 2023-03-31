@@ -26,6 +26,7 @@ import Entity from "../dto/entity";
 
 import { MultiplayerGame } from "./server/multiplayerGame";
 import { SingleplayerGame } from "./server/singleplayerGame";
+import ControlsUI from "./ui/controlsUI";
 
 enum KeyboardKey {
     ArrowUp = "ArrowUp",
@@ -187,6 +188,7 @@ function draw(deltaTime: number) {
 
     gunUI.render(context, player.gun.state.current);
     FPS.render(context, deltaTime);
+    ControlsUI.render(context)
 
     // Clear bullets
     bullets.length = 0;
