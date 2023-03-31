@@ -41,6 +41,10 @@ enum KeyboardKey {
     R = "r",
 }
 
+let lastMessageToServerTime: number = 0;
+let lastMessageFromServerTime: number = Number.POSITIVE_INFINITY;
+function shouldSendMessageToServer(): boolean { return (lastMessageFromServerTime > lastMessageToServerTime); }
+
 document.getElementById("respawn-button")!.onclick = requestRespawn;
 
 const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
@@ -118,7 +122,7 @@ function updatePlayerInput() {
         } else {
             playerRequest.shoot = true;
         }
-    } else if(Mouse.getButtonUp(0)) {
+    } else if (Mouse.getButtonUp(0)) {
         playerRequest.shoot = false;
     }
 
@@ -140,6 +144,16 @@ function update(deltaTime: number) {
     player.update(deltaTime);
     zombies.forEach((zombie) => zombie.gameObject.update(deltaTime));
     otherPlayers.forEach((otherPlayer) => otherPlayer.gameObject.update(deltaTime));
+
+    // Send updates to server
+    if (shouldSendMessageToServer()) {
+        sendUpdateToServer();
+
+        // Reset request buffer
+        playerRequest.switchGun = false;
+        playerRequest.reload = false;
+        playerRequest.switchGunFireMode = false;
+    }
 }
 
 function draw(deltaTime: number) {
@@ -180,7 +194,7 @@ function draw(deltaTime: number) {
 
 // Request --------------------
 function sendUpdateToServer() {
-    if(!playerEntity) { return; }
+    if (!playerEntity) { return; }
 
     const payload: ClientMessage<ClientPlayerUpdate> = {
         playerId: playerEntity.id,
@@ -189,12 +203,14 @@ function sendUpdateToServer() {
     };
 
     server.sendMessage(JSON.stringify(payload));
+
+    lastMessageToServerTime = Date.now();
 }
 
 function requestRespawn() {
-    if(!player) { return; }
-    if(!playerEntity) { return; }
-    if(player.state.current.health > 0) { return }
+    if (!player) { return; }
+    if (!playerEntity) { return; }
+    if (player.state.current.health > 0) { return }
 
     const request: ClientMessage = {
         playerId: playerEntity.id,
@@ -203,11 +219,15 @@ function requestRespawn() {
     }
 
     server.sendMessage(JSON.stringify(request));
+
+    lastMessageToServerTime = Date.now();
 }
 
 //---------------------------- SERVER ----------------------------
 
 function onServerMessageReceived(data: string) {
+    lastMessageFromServerTime = Date.now();
+
     const message: ServerMessage = JSON.parse(data);
 
     if (message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
@@ -220,8 +240,8 @@ function onServerMessageReceived(data: string) {
     }
 
     //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
-    if(!player) { return; }
-    if(!playerEntity) { return; }
+    if (!player) { return; }
+    if (!playerEntity) { return; }
 
     const serverData = message.data as unknown as ServerWorldUpdate;
 
@@ -241,17 +261,6 @@ function onServerMessageReceived(data: string) {
     zombies.onServerUpdate(serverData.world.zombies);
     otherPlayers.onServerUpdate(serverData.world.players);
 }
-
-// Send updates to server
-setInterval(() => {
-    sendUpdateToServer();
-
-    // Reset request buffer
-    playerRequest.moveDirection = VectorZero();
-    playerRequest.switchGun = false;
-    playerRequest.reload = false;
-    playerRequest.switchGunFireMode = false;
-}, 100);
 
 //---------------------------- GAME SERVER ----------------------------
 // Chosse between [SingleplayerGame] and [MultiplayerGame]
