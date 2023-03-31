@@ -1,4 +1,5 @@
-import Transform from "../../../core/transform";
+import Transform from "../../../../core/transform";
+import { FIRE_MODE } from "../../../../model/gun";
 import Gun from "../gun";
 
 export default class Pistol extends Gun {
@@ -11,5 +12,12 @@ export default class Pistol extends Gun {
         this.cooldownTime = 500;
         this.attackPower = 34;
         this.reloadTime = 500; // Ready delay
+
+        this.firingModes = [
+            FIRE_MODE.AUTO,
+            FIRE_MODE.SEMI_AUTO
+        ];
+
+        this.setFireMode(0);
     }
 }

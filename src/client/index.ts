@@ -78,7 +78,8 @@ const playerRequest: ClientPlayerUpdate = {
     shoot: false,
     reload: false,
     switchGun: false,
-    switchGunOffset: 0
+    switchGunOffset: 0,
+    switchGunFireMode: false
 }
 
 const FPS: FpsUI = new FpsUI();
@@ -119,6 +120,10 @@ function updatePlayerInput() {
         }
     } else if(Mouse.getButtonUp(0)) {
         playerRequest.shoot = false;
+    }
+
+    if (Mouse.getButtonDown(1)) {
+        playerRequest.switchGunFireMode = true;
     }
 
     if (Mouse.getMouseWheelDelta() !== 0) {
@@ -245,6 +250,7 @@ setInterval(() => {
     playerRequest.moveDirection = VectorZero();
     playerRequest.switchGun = false;
     playerRequest.reload = false;
+    playerRequest.switchGunFireMode = false;
 }, 100);
 
 //---------------------------- GAME SERVER ----------------------------

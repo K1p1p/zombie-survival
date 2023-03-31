@@ -65,13 +65,7 @@ export function repeatRange(value: number, min: number, max: number): number {
  * @param length Positive value larger than zero.
  */
 export function loop(value: number, length: number): number {
-    if(value < 0) {
-        value = (length - (Math.abs(value) % length));
+    const index = (value % length);
 
-        if(value == length) { return 0; }
-
-        return value;
-    }
-
-    return (value % length);
+    return (index < 0) ? (index + length) : index
 }

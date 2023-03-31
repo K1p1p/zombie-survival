@@ -4,4 +4,12 @@ export default interface GunModel {
     ammo: number;
     ammoCapacity: number;
     isReloading: boolean;
+
+    fireMode: FIRE_MODE;
+}
+
+export enum FIRE_MODE {
+    AUTO = "AUTO",
+    BURST = "BURST",
+    SEMI_AUTO = "SEMI-AUTO",
 }

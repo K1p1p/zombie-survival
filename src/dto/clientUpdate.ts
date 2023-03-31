@@ -7,4 +7,5 @@ export interface ClientPlayerUpdate {
     reload: boolean;
     switchGun: boolean;
     switchGunOffset: number;
+    switchGunFireMode: boolean;
 }
