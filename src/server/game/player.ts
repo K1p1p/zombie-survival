@@ -8,6 +8,9 @@ import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
 import Circle from "../../core/geometry/circle";
 import Server from "../server";
+import { loop } from "../../core/math/index";
+import Pistol from "./guns/pistol";
+import SMG from "./guns/smg";
 
 export default class Player extends Transform implements INetworkObject {
     public webSocketId?: string;
@@ -27,20 +30,30 @@ export default class Player extends Transform implements INetworkObject {
 
     public gun: Gun;
 
+
+    public guns: Gun[];
+    public gunIndex: number = 0;
+
     protected speed: number = 1;
 
     private actionBuffer: ClientPlayerUpdate = {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
-        reload: false
+        reload: false,
+        switchGun: false,
+        switchGunOffset: 0
     }
 
     constructor(nickname: string, position?: Vector, rotation?: number, direction?: Vector) {
         super(position, rotation, direction);
 
         this.nickname = nickname;
-        this.gun = new Gun(this);
+        this.guns = [
+            new Pistol(this),
+            new SMG(this),
+        ];
+        this.gun = this.guns[this.gunIndex];
     }
 
     shoot(): (Bullet | null) {
@@ -65,9 +78,15 @@ export default class Player extends Transform implements INetworkObject {
         this.rotation = this.actionBuffer.rotation;
 
         if(this.actionBuffer.shoot) { server.createBullet(this.shoot(), this.gun); }
+        
         if(this.actionBuffer.reload) { this.reload(); }
 
-        this.resetActionBuffer();
+        if(this.actionBuffer.switchGun) { 
+            this.gunIndex = loop(this.gunIndex + this.actionBuffer.switchGunOffset, this.guns.length);
+            this.gun = this.guns[this.gunIndex];
+
+            this.actionBuffer.switchGun = false;
+        }
     }
 
     clientUpdate(data: ClientPlayerUpdate) {
@@ -92,15 +111,5 @@ export default class Player extends Transform implements INetworkObject {
                 gun: this.gun.toModel()
             }
         };
-    }
-
-    private resetActionBuffer() {
-        // Let client decide the state of these:
-        // - moveDirection
-        // - rotation
-
-        // Reset these
-        this.actionBuffer.shoot = false;
-        this.actionBuffer.reload = false;;
     }
 }

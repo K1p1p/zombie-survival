@@ -1,6 +1,6 @@
 import Camera from "../core/browser/game/camera";
 import GameLoop from "../core/browser/game/gameLoop";
-import Keyboard, { KeyboardKey } from "../core/browser/input/keyboard";
+import Keyboard from "../core/browser/input/keyboard";
 import Mouse from "../core/browser/input/mouse";
 import Vector, { VectorZero } from "../core/math/vector";
 
@@ -26,6 +26,20 @@ import Entity from "../dto/entity";
 
 import { MultiplayerGame } from "./server/multiplayerGame";
 import { SingleplayerGame } from "./server/singleplayerGame";
+
+enum KeyboardKey {
+    ArrowUp = "ArrowUp",
+    ArrowLeft = "ArrowLeft",
+    ArrowDown = "ArrowDown",
+    ArrowRight = "ArrowRight",
+
+    W = "w",
+    A = "a",
+    S = "s",
+    D = "d",
+
+    R = "r",
+}
 
 document.getElementById("respawn-button")!.onclick = requestRespawn;
 
@@ -62,7 +76,9 @@ const playerRequest: ClientPlayerUpdate = {
     moveDirection: VectorZero(),
     rotation: 0,
     shoot: false,
-    reload: false
+    reload: false,
+    switchGun: false,
+    switchGunOffset: 0
 }
 
 const FPS: FpsUI = new FpsUI();
@@ -101,6 +117,13 @@ function updatePlayerInput() {
         } else {
             playerRequest.shoot = true;
         }
+    } else if(Mouse.getButtonUp(0)) {
+        playerRequest.shoot = false;
+    }
+
+    if (Mouse.getMouseWheelDelta() !== 0) {
+        playerRequest.switchGun = true;
+        playerRequest.switchGunOffset = Mouse.getMouseWheelDelta();
     }
 }
 
@@ -220,7 +243,7 @@ setInterval(() => {
 
     // Reset request buffer
     playerRequest.moveDirection = VectorZero();
-    playerRequest.shoot = false;
+    playerRequest.switchGun = false;
     playerRequest.reload = false;
 }, 100);
 

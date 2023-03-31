@@ -4,7 +4,7 @@ export default class GunUI {
     private getText(gun: GunModel): string {
         if(gun.isReloading) { return "RELOADING..."; }
 
-        return `AMMO: ${gun.ammo}/${gun.ammoCapacity}`;
+        return `${gun.name} AMMO: ${gun.ammo}/${gun.ammoCapacity}`;
     }
 
     render(context: CanvasRenderingContext2D, gun: GunModel): void {

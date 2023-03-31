@@ -1,19 +1,5 @@
 import { ButtonStateHandler } from "./buttonStateHandler";
 
-export enum KeyboardKey {
-    ArrowUp = "ArrowUp",
-    ArrowLeft = "ArrowLeft",
-    ArrowDown = "ArrowDown",
-    ArrowRight = "ArrowRight",
-
-    W = "w",
-    A = "a",
-    S = "s",
-    D = "d",
-
-    R = "r",
-}
-
 export default class Keyboard {
     private static buttonHandler: ButtonStateHandler = new ButtonStateHandler();
 
@@ -26,15 +12,15 @@ export default class Keyboard {
         Keyboard.buttonHandler.prepareForFrame();
     }
 
-    public static getKeyDown(key: KeyboardKey): boolean {
+    public static getKeyDown(key: string): boolean {
         return Keyboard.buttonHandler.getKeyDown(key);
     }
 
-    public static getKeyHold(key: KeyboardKey): boolean {
+    public static getKeyHold(key: string): boolean {
         return Keyboard.buttonHandler.getKeyHold(key);
     }
 
-    public static getKeyUp(key: KeyboardKey): boolean {
+    public static getKeyUp(key: string): boolean {
         return Keyboard.buttonHandler.getKeyUp(key);
     }
 }

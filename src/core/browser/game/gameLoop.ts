@@ -49,6 +49,9 @@ export default class GameLoop {
         Keyboard.prepareForFrame();
     
         this.update(deltaTime);
+
+        // Clear
+        Mouse.endOfFrame();
     }
 
     private render(deltaTime: number) {
