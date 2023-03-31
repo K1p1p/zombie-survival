@@ -5,6 +5,7 @@ export default class Mouse {
     private static buttonHandler: ButtonStateHandler = new ButtonStateHandler();
 
     private static lastState: undefined | MouseEvent = undefined;
+    private static lastWheelState: undefined | WheelEvent = undefined;
 
     public static init(document: Document) {
         document.onmouseup   = (event: MouseEvent) => Mouse.buttonHandler.onKeyUp(event.button.toString());
@@ -13,10 +14,16 @@ export default class Mouse {
         function updateState(event: MouseEvent) { Mouse.lastState = event; }
         document.onmouseenter = updateState;
         document.onmousemove = updateState;
+
+        document.onwheel = (event: WheelEvent) => { Mouse.lastWheelState = event; }
     }
 
     public static prepareForFrame() {
         Mouse.buttonHandler.prepareForFrame();
+    }
+
+    public static endOfFrame() {
+        Mouse.lastWheelState = undefined;
     }
 
     public static getButtonDown(button: number): boolean {
@@ -29,6 +36,12 @@ export default class Mouse {
 
     public static getButtonUp(button: number): boolean {
         return Mouse.buttonHandler.getKeyUp(button.toString());
+    }
+
+    public static getMouseWheelDelta(): number {
+        if(!Mouse.lastWheelState) { return 0; }
+
+        return (Mouse.lastWheelState.deltaY > 0) ? 1 : -1;
     }
 
     public static getScreenPosition(): Vector {

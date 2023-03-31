@@ -14,7 +14,7 @@ import { ServerPlayerConnected } from "../dto/serverNewConnection";
 import { ServerWorld, ServerWorldUpdate } from "../dto/serverUpdate";
 import Entity from "../dto/entity";
 import Circle from "../core/geometry/circle";
-import Gun from "./game/gun";
+import Gun from "./game/gun/gun";
 import { ClientPlayerConnectionRequest } from "../dto/clientConnectionRequest";
 import FPSCounter from "../core/helpers/fpsCounter";
 

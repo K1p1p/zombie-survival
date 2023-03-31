@@ -5,4 +5,7 @@ export interface ClientPlayerUpdate {
     rotation: number; // Radians
     shoot: boolean;
     reload: boolean;
+    switchGun: boolean;
+    switchGunOffset: number;
+    switchGunFireMode: boolean;
 }

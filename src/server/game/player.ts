@@ -1,5 +1,5 @@
 import Vector, { VectorZero } from "../../core/math/vector";
-import Gun from "./gun";
+import Gun from "./gun/gun";
 import Bullet from "./bullet";
 import INetworkObject from "../networkObject";
 import Transform from "../../core/transform";
@@ -8,6 +8,10 @@ import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
 import Circle from "../../core/geometry/circle";
 import Server from "../server";
+import { loop } from "../../core/math/index";
+import Pistol from "./gun/list/pistol";
+import SMG from "./gun/list/smg";
+import { GunTrigger, TRIGGER_STATE } from "./gun/gunTrigger";
 
 export default class Player extends Transform implements INetworkObject {
     public webSocketId?: string;
@@ -26,6 +30,10 @@ export default class Player extends Transform implements INetworkObject {
     };
 
     public gun: Gun;
+    private gunTrigger: GunTrigger = new GunTrigger();
+
+    public guns: Gun[];
+    public gunIndex: number = 0;
 
     protected speed: number = 1;
 
@@ -33,18 +41,21 @@ export default class Player extends Transform implements INetworkObject {
         moveDirection: VectorZero(),
         rotation: 0,
         shoot: false,
-        reload: false
+        reload: false,
+        switchGun: false,
+        switchGunOffset: 0,
+        switchGunFireMode: false
     }
 
     constructor(nickname: string, position?: Vector, rotation?: number, direction?: Vector) {
         super(position, rotation, direction);
 
         this.nickname = nickname;
-        this.gun = new Gun(this);
-    }
-
-    shoot(): (Bullet | null) {
-        return this.gun.shoot();
+        this.guns = [
+            new Pistol(this),
+            new SMG(this),
+        ];
+        this.gun = this.guns[this.gunIndex];
     }
 
     reload() {
@@ -64,10 +75,28 @@ export default class Player extends Transform implements INetworkObject {
 
         this.rotation = this.actionBuffer.rotation;
 
-        if(this.actionBuffer.shoot) { server.createBullet(this.shoot(), this.gun); }
+        this.gunTrigger.update(this.actionBuffer.shoot);
+
         if(this.actionBuffer.reload) { this.reload(); }
 
-        this.resetActionBuffer();
+             if(this.gunTrigger.state === TRIGGER_STATE.ON_PULL   ) { this.gun.triggerPull(); }
+        else if(this.gunTrigger.state === TRIGGER_STATE.ON_RELEASE) { this.gun.triggerRelease(); }
+
+        this.gun.update(server);
+
+        if(this.actionBuffer.switchGunFireMode) {
+            this.gun.switchFireMode();
+            this.actionBuffer.switchGunFireMode = false;
+        }
+
+        if(this.actionBuffer.switchGun) { 
+            this.gunIndex = loop(this.gunIndex + this.actionBuffer.switchGunOffset, this.guns.length);
+            this.gun = this.guns[this.gunIndex];
+
+            this.actionBuffer.switchGun = false;
+
+            this.gunTrigger.reset();
+        }
     }
 
     clientUpdate(data: ClientPlayerUpdate) {
@@ -92,15 +121,5 @@ export default class Player extends Transform implements INetworkObject {
                 gun: this.gun.toModel()
             }
         };
-    }
-
-    private resetActionBuffer() {
-        // Let client decide the state of these:
-        // - moveDirection
-        // - rotation
-
-        // Reset these
-        this.actionBuffer.shoot = false;
-        this.actionBuffer.reload = false;;
     }
 }

@@ -25,3 +25,47 @@ export function angleLerp(current: number, target:number, t: number) {
 
     return (current + (shortAngleDist(current,target) * t));
 }
+
+export function inverseLerp(a: number, b: number, value: number): number {
+    if (a !== b) {
+        return (value - a) / (b - a);
+    } else {
+        return 0.0;
+    }
+}
+
+export function fract(value: number): number {
+    return (value - Math.floor(value));
+}
+
+/**
+ * Loops the value, so that it is never larger than length and never smaller than 0.
+ * @param value Positive value.
+ * @param length Positive value larger than zero.
+ */
+export function repeat(value: number, length: number): number {
+    return (value % length);
+}
+
+/**
+ * Loops the value | min(inclusive) max(exclusive)
+ * @param value Positive value.
+ * @param min Positive value larger than zero. (Inclusive)
+ * @param max Positive value larger than zero. (Exclusive)
+ */
+export function repeatRange(value: number, min: number, max: number): number {
+    const delta = Math.abs(max - min);
+
+    return min + repeat(value, delta);
+}
+
+/**
+ * Loops the value, so that it is never larger than length and never smaller than 0.
+ * @param value Value.
+ * @param length Positive value larger than zero.
+ */
+export function loop(value: number, length: number): number {
+    const index = (value % length);
+
+    return (index < 0) ? (index + length) : index
+}
