@@ -1,7 +1,7 @@
 import { FIRE_MODE } from "../../../model/gun";
 
 export class GunFiringMechanism {
-    private fireMode: FIRE_MODE;
+    private fireMode!: FIRE_MODE;
 
     private isShooting: boolean = false;
     private bulletsShotAfterTriggerPull: number = 0;

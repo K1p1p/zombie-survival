@@ -7,7 +7,7 @@ import Bullet from "../bullet";
 import { GunFiringMechanism } from "./gunFiringMechanism";
 
 export default abstract class Gun implements INetworkObject {
-    public name: string;
+    public name: string = "GUN";
 
     public ammo: number = 6;
     public ammoCapacity: number = 6;
