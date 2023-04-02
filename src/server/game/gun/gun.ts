@@ -2,8 +2,8 @@ import { repeat } from "../../../core/math/index";
 import Transform from "../../../core/transform";
 import GunModel, { FIRE_MODE } from "../../../model/gun";
 import INetworkObject from "../../networkObject";
-import Server from "../../server";
 import Bullet from "../bullet";
+import GameWorld from "../world/gameWorld";
 import { GunFiringMechanism } from "./gunFiringMechanism";
 
 export default abstract class Gun implements INetworkObject {
@@ -49,7 +49,7 @@ export default abstract class Gun implements INetworkObject {
         this.firingMechanism.onTriggerRelease();
     }
 
-    public update(server: Server) {
+    public update(server: GameWorld) {
         if (this.isInCooldown) { return null; }
         if (this.isReloading) { return null; }
         if (this.ammo == 0) { return null; }

@@ -3,12 +3,12 @@ import Gun from "./gun/gun";
 import PlayerModel from "../../model/player";
 import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
-import Server from "../server";
 import { loop } from "../../core/math/index";
 import Pistol from "./gun/list/pistol";
 import SMG from "./gun/list/smg";
 import { GunTrigger, TRIGGER_STATE } from "./gun/gunTrigger";
 import GameObject from "./gameObject";
+import GameWorld from "./world/gameWorld";
 
 export default class Player extends GameObject {
     public webSocketId?: string;
@@ -53,7 +53,7 @@ export default class Player extends GameObject {
         this.gun.reload();
     }
 
-    update(deltaTime: number, server: Server) {
+    update(deltaTime: number, gameWorld: GameWorld) {
         if(!this.isAlive) { return; }
 
         const normalizedDir: Vector = Vector.normalize(this.actionBuffer.moveDirection);
@@ -73,7 +73,7 @@ export default class Player extends GameObject {
              if(this.gunTrigger.state === TRIGGER_STATE.ON_PULL   ) { this.gun.triggerPull(); }
         else if(this.gunTrigger.state === TRIGGER_STATE.ON_RELEASE) { this.gun.triggerRelease(); }
 
-        this.gun.update(server);
+        this.gun.update(gameWorld);
 
         if(this.actionBuffer.switchGunFireMode) {
             this.gun.switchFireMode();
