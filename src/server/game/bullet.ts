@@ -4,6 +4,7 @@ import Zombie from "./zombie";
 import Line from "../../core/geometry/line";
 import INetworkObject from "../networkObject";
 import BulletModel from "../../model/bullet";
+import { getNearestGameObjectFromVector } from "../utils/getNearest";
 
 export default class Bullet extends Transform implements INetworkObject {
     private endPosition: Vector = VectorZero();
@@ -22,7 +23,7 @@ export default class Bullet extends Transform implements INetworkObject {
         this.setDirection(direction);
     }
 
-    collisionCheck(zombies: Zombie[]): { zombie: Zombie, zombieIndex: number} | null {
+    collisionCheck(zombies: Zombie[]): Zombie | null {
         // Project trajectory
         this.endPosition = {
             x: (this.position.x + (this.direction.x * this.maxDistance)),
@@ -30,34 +31,14 @@ export default class Bullet extends Transform implements INetworkObject {
         }
 
         // Zombie vs Bullet hit-test
-        let zombieHit: (Zombie | null) = null;
-        let zombieHitIndex: number = 0;
-        let zombieHitDistance: number = Number.POSITIVE_INFINITY;
-        zombies.forEach((zombie, index) => {
-            if(Line.intersectsCircle(this.collider, zombie.collider)) {
-                const distanceFromBullet: number = Vector.magnitude({ 
-                    x: (zombie.position.x - this.position.x),
-                    y: (zombie.position.y - this.position.y),
-                });
+        const zombiesHit: Zombie[] = zombies.filter((zombie) => Line.intersectsCircle(this.collider, zombie.collider.collider));
+        const nearestZombieHit = getNearestGameObjectFromVector(zombiesHit, this.position);
 
-                // Hit only the nearest zombie
-                if(distanceFromBullet < zombieHitDistance) {
-                    zombieHit = zombie;
-                    zombieHitIndex = index;
-                    zombieHitDistance = distanceFromBullet;
-                }
-            }
-        });
-
-        if(zombieHit) {
+        if(nearestZombieHit) {
             // Reposition bullet
-            // @ts-ignore
-            this.endPosition  = zombieHit.position!;
+            this.endPosition  = nearestZombieHit.transform.position;
 
-            return {
-                zombie: zombieHit,
-                zombieIndex: zombieHitIndex
-            };
+            return nearestZombieHit;
         }
 
         return null;

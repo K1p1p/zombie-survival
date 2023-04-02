@@ -1,19 +1,16 @@
 import Vector, { VectorZero } from "../../core/math/vector";
 import Gun from "./gun/gun";
-import Bullet from "./bullet";
-import INetworkObject from "../networkObject";
-import Transform from "../../core/transform";
 import PlayerModel from "../../model/player";
 import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
-import Circle from "../../core/geometry/circle";
 import Server from "../server";
 import { loop } from "../../core/math/index";
 import Pistol from "./gun/list/pistol";
 import SMG from "./gun/list/smg";
 import { GunTrigger, TRIGGER_STATE } from "./gun/gunTrigger";
+import GameObject from "./gameObject";
 
-export default class Player extends Transform implements INetworkObject {
+export default class Player extends GameObject {
     public webSocketId?: string;
 
     public nickname: string;
@@ -22,12 +19,6 @@ export default class Player extends Transform implements INetworkObject {
     public maxHealth: number = 1;
     public health: number = this.maxHealth;
     public get isAlive(): boolean { return this.health > 0 }
-    public get collider(): Circle { 
-        return {
-            position: this.position,
-            radius: 0.1
-        } 
-    };
 
     public gun: Gun;
     private gunTrigger: GunTrigger = new GunTrigger();
@@ -47,13 +38,13 @@ export default class Player extends Transform implements INetworkObject {
         switchGunFireMode: false
     }
 
-    constructor(nickname: string, position?: Vector, rotation?: number, direction?: Vector) {
-        super(position, rotation, direction);
+    constructor(nickname: string) {
+        super();
 
         this.nickname = nickname;
         this.guns = [
-            new Pistol(this),
-            new SMG(this),
+            new Pistol(this.transform),
+            new SMG(this.transform),
         ];
         this.gun = this.guns[this.gunIndex];
     }
@@ -68,12 +59,12 @@ export default class Player extends Transform implements INetworkObject {
         const normalizedDir: Vector = Vector.normalize(this.actionBuffer.moveDirection);
         const step = (this.speed * deltaTime);
     
-        this.translate({
+        this.transform.translate({
             x: (normalizedDir.x * step),
             y: (normalizedDir.y * step),
         })
 
-        this.rotation = this.actionBuffer.rotation;
+        this.transform.rotation = this.actionBuffer.rotation;
 
         this.gunTrigger.update(this.actionBuffer.shoot);
 
@@ -114,9 +105,9 @@ export default class Player extends Transform implements INetworkObject {
                 maxHealth: this.maxHealth,
                 speed: this.speed,
                 transform: {
-                    position: this.position,
-                    rotation: this.rotation,
-                    direction: this.direction
+                    position: this.transform.position,
+                    rotation: this.transform.rotation,
+                    direction: this.transform.direction
                 },
                 gun: this.gun.toModel()
             }

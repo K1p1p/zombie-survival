@@ -43,8 +43,8 @@ export default class Server {
     private logicLoop: Loop;
 
     public players: Dictionary<Player> = {};
+    public zombies: Dictionary<Zombie> = {};
     public bullets: Bullet[] = [];
-    public zombies: Zombie[] = [];
 
     private sendMessage: ServerMessageCallback;
 
@@ -63,7 +63,8 @@ export default class Server {
                 y: Math.random() * this.mapHeight - this.mapHeight / 2,
             };
 
-            this.zombies.push(new Zombie(pos));
+            const newZombie: Zombie = new Zombie(pos);
+            this.zombies[newZombie.id] = newZombie;
         }, 2000);
     }
 
@@ -72,44 +73,11 @@ export default class Server {
         // Clear bullets array
         this.bullets.length = 0;
 
-        Object.values(this.players).forEach((player) =>
-            player.update(deltaTime, this)
-        );
+        // Update players
+        Object.values(this.players).forEach((player) => player.update(deltaTime, this));
 
         // Update zombies
-        this.zombies.forEach((zombie) => {
-            // Get nearest alive player
-            let nearestPlayer: (Player | undefined) = undefined;
-            let nearestPlayerDistance: number = Number.POSITIVE_INFINITY;
-            Object.values(this.players).forEach((player) => {
-                if (!player.isAlive) {
-                    return;
-                }
-
-                const distance: number = Vector.magnitude({
-                    x: player.position.x - zombie.position.x,
-                    y: player.position.y - zombie.position.y,
-                });
-
-                if (distance < nearestPlayerDistance) {
-                    nearestPlayer = player;
-                    nearestPlayerDistance = distance;
-                }
-            });
-
-            // Update zombie
-            zombie.update(deltaTime, nearestPlayer);
-
-            if (nearestPlayer != undefined) {
-                // Check collision with player, then damages it
-                // @ts-ignore
-                const playerCollider: Circle = nearestPlayer.collider;
-                if (Circle.intersectsSphere(zombie.collider, playerCollider)) {
-                    // @ts-ignore
-                    nearestPlayer.health -= zombie.attackPower * deltaTime;
-                }
-            }
-        });
+        Object.values(this.zombies).forEach((zombie) => zombie.update(deltaTime, Object.values(this.players)));
 
         // Send data to client ---------------------
         const world: ServerWorld = {
@@ -118,10 +86,8 @@ export default class Server {
                 height: this.mapHeight,
             },
 
-            players: Object.values(this.players).map<Entity<PlayerModel>>((item) =>
-                item.toModel()
-            ),
-            zombies: this.zombies.map<Entity<ZombieModel>>((item) => item.toModel()),
+            players: Object.values(this.players).map<Entity<PlayerModel>>((item) => item.toModel()),
+            zombies: Object.values(this.zombies).map<Entity<ZombieModel>>((item) => item.toModel()),
 
             bullets: this.bullets.map<BulletModel>((item) => item.toModel()),
         };
@@ -148,15 +114,15 @@ export default class Server {
         if (!gun) { return; }
         if (!newBullet) { return; }
 
-        const hit = newBullet.collisionCheck(this.zombies);
+        const hit = newBullet.collisionCheck(Object.values(this.zombies));
 
         if (hit) {
             // Damage zombie
-            hit.zombie.health -= gun.attackPower;
+            hit.health -= gun.attackPower;
 
-            if (hit.zombie.health <= 0) {
+            if (hit.health <= 0) {
                 // Destroy zombie
-                this.zombies.splice(hit.zombieIndex, 1);
+                delete this.zombies[hit.id];
             }
         }
 
@@ -195,7 +161,7 @@ export default class Server {
 
                     // Reset position and health
                     player.health = player.maxHealth;
-                    player.position = {
+                    player.transform.position = {
                         x: Math.random() * this.mapWidth - this.mapWidth / 2,
                         y: Math.random() * this.mapHeight - this.mapHeight / 2,
                     };
