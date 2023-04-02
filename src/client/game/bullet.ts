@@ -16,7 +16,7 @@ export default class Bullet extends GameObject {
 
         this.endPosition = data.endPosition;
         
-        SoundManager.playGunshot();
+        SoundManager.playGunshot(this.position);
     }
 
     render(context: CanvasRenderingContext2D): void {

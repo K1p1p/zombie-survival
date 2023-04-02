@@ -44,7 +44,7 @@ export default class Player extends GameObject {
 
     public updateState(newState: PlayerModel) {
         this.state.setState(newState);
-        this.gun.updateState(this.state.current.gun);
+        this.gun.updateState(this.state.current.gun, this.state.last.transform.position);
 
         this.position = this.state.last.transform.position;
         this.direction = this.state.last.transform.direction;

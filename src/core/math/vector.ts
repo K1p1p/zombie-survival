@@ -29,6 +29,17 @@ export default class Vector {
             y: (vector.y / mag)
         }
     }
+
+    public static distance(to: Vector, from: Vector): number {
+        return Vector.magnitude(Vector.delta(to, from));
+    }
+
+    public static delta(to: Vector, from: Vector): Vector {
+        return {
+            x: (to.x - from.x),
+            y: (to.y - from.y),
+        }
+    }
 }
 
 export function VectorZero(): Vector {

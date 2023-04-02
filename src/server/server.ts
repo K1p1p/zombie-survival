@@ -30,7 +30,7 @@ class ServerDebug {
 } 
 
 export default class Server {
-    private world: GameWorld = new GameWorld();
+    public world: GameWorld = new GameWorld();
 
     private logicLoop: Loop;
 
