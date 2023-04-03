@@ -1,3 +1,4 @@
+import Coordinates from "../../core/browser/game/coordinates";
 import GameObject from "../../core/browser/game/gameObject";
 import { angleLerp } from "../../core/math/index";
 import Vector from "../../core/math/vector";
@@ -15,7 +16,7 @@ export default class Zombie extends GameObject {
 
         this.state = new ModelStateHandler<ZombieModel>(data);
 
-        this.healthBar = new HealthBar(this, 0.1, data.maxHealth, data.health);
+        this.healthBar = new HealthBar(this, this.state.current.size, data.maxHealth, data.health);
     }
 
     public update(deltaTime: number) {
@@ -45,11 +46,11 @@ export default class Zombie extends GameObject {
     render(context: CanvasRenderingContext2D): void {
         super.render(context);
 
-        const size: number = 5;
+        const size: number = Coordinates.worldToPixelsScale(this.state.current.size);
 
-        context.lineWidth = (size - 3);
-        context.fillStyle = "red";
-        context.strokeStyle = "red";
+        context.lineWidth = (size * 0.75);
+        context.fillStyle = this.state.current.color;
+        context.strokeStyle = this.state.current.color;
 
         context.beginPath();
         context.moveTo(0, size)

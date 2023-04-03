@@ -47,6 +47,8 @@ export default class Player extends GameObject {
             new AssaultRifle(this.transform),
         ];
         this.gun = this.guns[this.gunIndex];
+
+        this.collider.setSize(0.1);
     }
 
     reload() {

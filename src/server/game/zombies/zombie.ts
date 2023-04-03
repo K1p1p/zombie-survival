@@ -1,17 +1,18 @@
-import Vector from "../../core/math/vector";
-import ZombieModel from "../../model/zombie";
-import Entity from "../../dto/entity";
-import GameObject from "./gameObject";
-import Player from "./player";
-import { getNearestGameObjectFromVector } from "../utils/getNearest";
-import Circle from "../../core/geometry/circle";
+import Vector from "../../../core/math/vector";
+import ZombieModel from "../../../model/zombie";
+import Entity from "../../../dto/entity";
+import GameObject from "../gameObject";
+import Player from "../player";
+import { getNearestGameObjectFromVector } from "../../utils/getNearest";
+import Circle from "../../../core/geometry/circle";
 
-// Common zombie
-export default class Zombie extends GameObject {
+export default abstract class Zombie extends GameObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public maxHealth: number = 10;
     public health: number = this.maxHealth;
     public attackPower: number = 5;
+    public color: string = "red";
+    public size: number = 0.1;
 
     protected speed: number = 0.5;
 
@@ -19,6 +20,11 @@ export default class Zombie extends GameObject {
         super();
 
         this.transform.position = position;
+    }
+
+    protected loadBaseStats() {
+        this.health = this.maxHealth;
+        this.collider.setSize(this.size);
     }
 
     update(deltaTime: number, players: Player[]) {
@@ -29,8 +35,7 @@ export default class Zombie extends GameObject {
         this.transform.lookAt(nearestPlayer.transform.position);
 
         const normalizedDir: Vector = Vector.normalize(this.transform.direction);
-        const speed = 0.5;
-        const step = (speed * deltaTime);
+        const step = (this.speed * deltaTime);
 
         this.transform.translate({
             x: (normalizedDir.x * step),
@@ -47,6 +52,8 @@ export default class Zombie extends GameObject {
         return {
             id: this.id,
             data: {
+                size: this.size,
+                color: this.color,
                 health: this.health,
                 maxHealth: this.maxHealth,
                 speed: this.speed,

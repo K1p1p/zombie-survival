@@ -1,6 +1,6 @@
 import Vector, { VectorZero } from "../../core/math/vector";
 import Transform from "../../core/transform";
-import Zombie from "./zombie";
+import Zombie from "./zombies/zombie";
 import Line from "../../core/geometry/line";
 import INetworkObject from "../networkObject";
 import BulletModel from "../../model/bullet";

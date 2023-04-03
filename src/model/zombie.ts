@@ -5,4 +5,6 @@ export default interface ZombieModel {
     maxHealth: number;
     transform: TransformModel;
     speed: number;
+    color: string;
+    size: number;
 }

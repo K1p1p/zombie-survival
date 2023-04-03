@@ -5,8 +5,6 @@ export default class CircleCollider {
     private radius: number;
     private transform: Transform;
 
-    //private collider: Circle;
-
     public get collider(): Circle { 
         return {
             position: this.transform.position,
@@ -14,8 +12,12 @@ export default class CircleCollider {
         } 
     };
 
-    constructor(transform: Transform, radius: number=0.1) {
+    constructor(transform: Transform, radius: number=1) {
         this.radius = radius;
         this.transform = transform;
+    }
+
+    public setSize(radius: number) {
+        this.radius = radius;
     }
 }

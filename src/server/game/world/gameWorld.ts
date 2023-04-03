@@ -9,7 +9,8 @@ import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
 import Gun from "../gun/gun";
 import Player from "../player";
-import Zombie from "../zombie";
+import Zombie from "../zombies/zombie";
+import { BlueZombie, GreenZombie, RedZombie } from "../zombies/zombieVariants";
 
 export default class GameWorld implements INetworkObject {
     public MAP_SIZE: number = 20;
@@ -19,14 +20,35 @@ export default class GameWorld implements INetworkObject {
     public bullets: Bullet[] = [];
 
     constructor() {
-        setInterval(() => {
+        const canCreateZombie = () => (Object.values(this.zombies).length <= 50)
+        const createZombie = (zombie: Zombie) => {
+            this.zombies[zombie.id] = zombie;
+        }
+        const getRandomPosition = () => {
             const pos: Vector = {
                 x: (Math.random() * this.MAP_SIZE) - (this.MAP_SIZE / 2),
                 y: (Math.random() * this.MAP_SIZE) - (this.MAP_SIZE / 2),
             };
 
-            const newZombie: Zombie = new Zombie(pos);
-            this.zombies[newZombie.id] = newZombie;
+            return pos;
+        }
+
+        setInterval(() => {
+            if(!canCreateZombie()) { return; }
+
+            if(Math.random() <= 0.50) { createZombie(new RedZombie  (getRandomPosition())); }
+        }, 2000);
+
+        setInterval(() => {
+            if(!canCreateZombie()) { return; }
+
+            if(Math.random() <= 0.25) { createZombie(new BlueZombie (getRandomPosition())); }
+        }, 2000);
+
+        setInterval(() => {
+            if(!canCreateZombie()) { return; }
+
+            if(Math.random() <= 0.10) { createZombie(new GreenZombie(getRandomPosition())); }
         }, 2000);
     }
 
