@@ -1,11 +1,11 @@
 import Camera from "../../core/browser/game/camera";
-import Sound from "../../core/browser/game/sound";
+import AudioManager from "../../core/browser/audio/manager";
 import { lerp } from "../../core/math/index";
 import Vector from "../../core/math/vector";
 
 export default class SoundManager {
     public static playGunshot(position: Vector) {
-        Sound.playOnce(
+        AudioManager.playOnce(
             "sfx/gunshot.mp3", 
             SoundManager.volumeForDistance(0.1, position),
             SoundManager.soundPanning(position)
@@ -13,7 +13,7 @@ export default class SoundManager {
     }
 
     public static playReload(position: Vector) {
-        Sound.playOnce(
+        AudioManager.playOnce(
             "sfx/reload.wav", 
             SoundManager.volumeForDistance(0.05, position),
             SoundManager.soundPanning(position)
