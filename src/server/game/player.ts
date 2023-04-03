@@ -5,7 +5,7 @@ import { ClientPlayerUpdate } from "../../dto/clientUpdate";
 import Entity from "../../dto/entity";
 import { loop } from "../../core/math/index";
 import Pistol from "./gun/list/pistol";
-import SMG from "./gun/list/smg";
+import AssaultRifle from "./gun/list/assaultRifle";
 import { GunTrigger, TRIGGER_STATE } from "./gun/gunTrigger";
 import GameObject from "./gameObject";
 import GameWorld from "./world/gameWorld";
@@ -44,7 +44,7 @@ export default class Player extends GameObject {
         this.nickname = nickname;
         this.guns = [
             new Pistol(this.transform),
-            new SMG(this.transform),
+            new AssaultRifle(this.transform),
         ];
         this.gun = this.guns[this.gunIndex];
     }

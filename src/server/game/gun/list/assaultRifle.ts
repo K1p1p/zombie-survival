@@ -1,12 +1,14 @@
 import Transform from "../../../../core/transform";
-import { FIRE_MODE } from "../../../../model/gun";
+import { FIRE_MODE, GUN_ID } from "../../../../model/gun";
 import Gun from "../gun";
 
-export default class SMG extends Gun {
+export default class AssaultRifle extends Gun {
     constructor(wielderTransform: Transform) {
         super(wielderTransform);
 
-        this.name = "SMG";
+        this.id = GUN_ID.GENERIC_ASSAULT_RIFLE;
+        this.name = "ASSAULT RIFLE";
+        
         this.ammoCapacity = 30;
         this.ammo = this.ammoCapacity;
         this.cooldownTime = 66;

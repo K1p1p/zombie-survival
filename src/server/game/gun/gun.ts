@@ -1,6 +1,6 @@
 import { repeat } from "../../../core/math/index";
 import Transform from "../../../core/transform";
-import GunModel, { FIRE_MODE } from "../../../model/gun";
+import GunModel, { FIRE_MODE, GUN_ID } from "../../../model/gun";
 import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
 import GameWorld from "../world/gameWorld";
@@ -25,6 +25,8 @@ export default abstract class Gun implements INetworkObject {
     private firingMechanism: GunFiringMechanism;
     private firingModeIndex: number = 0;
     protected firingModes: FIRE_MODE[] = [FIRE_MODE.SEMI_AUTO];
+
+    protected id: GUN_ID = GUN_ID.GENERIC_PISTOL;
 
     constructor(wielderTransform: Transform) {
         this.wielderTransform = wielderTransform;
@@ -79,6 +81,7 @@ export default abstract class Gun implements INetworkObject {
 
     toModel(): GunModel {
         return {
+            id: this.id,
             name: this.name,
 
             ammo: this.ammo,

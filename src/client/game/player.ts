@@ -1,7 +1,7 @@
 import Camera from "../../core/browser/game/camera";
 import GameObject from "../../core/browser/game/gameObject";
 import { angleLerp } from "../../core/math/index";
-import Vector from "../../core/math/vector";
+import Vector, { VectorZero } from "../../core/math/vector";
 import PlayerModel from "../../model/player";
 import HealthBar from "../healthBar";
 import ModelStateHandler from "../modelStateHandler";
@@ -57,15 +57,11 @@ export default class Player extends GameObject {
     render(context: CanvasRenderingContext2D): void {
         super.render(context);
 
+        this.gun.render(VectorZero(), context);
+
         context.lineWidth = 2;
         context.fillStyle = "black";
         context.strokeStyle = "black";
-
-        context.beginPath();
-        context.moveTo(0, 0)
-        context.lineTo(10, 0);
-        context.stroke();
-        context.closePath();
 
         context.beginPath();
         context.arc(0, 0, 5, 0, (2 * Math.PI));
