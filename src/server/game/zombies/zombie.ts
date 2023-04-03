@@ -31,6 +31,7 @@ export default abstract class Zombie extends GameObject {
         const nearestPlayer: Player | null = getNearestGameObjectFromVector(players, this.transform.position);
 
         if(!nearestPlayer) { return; }
+        if(!nearestPlayer.isAlive) { return; }
 
         this.transform.lookAt(nearestPlayer.transform.position);
 
