@@ -6,7 +6,8 @@ export class MultiplayerGame {
     webSocket: WebSocket;
 
     constructor(playerNickname: string, onServerMessage: ServerMessageCallback) {
-        const serverEndpoint = prompt("Server endpoint", 'ws://localhost:2222/');
+        const serverEndpoint = prompt("Server endpoint", sessionStorage.getItem("server-endpoint") ?? 'ws://localhost:2222/') ?? "unknown";
+        sessionStorage.setItem("server-endpoint", serverEndpoint);
 
         this.webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
 

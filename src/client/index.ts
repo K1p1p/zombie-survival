@@ -73,7 +73,9 @@ const zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
 
 const bullets: Bullet[] = [];
 
-const playerNickname: string = prompt("Nickname", 'Guest') ?? 'Guest';
+const playerNickname: string = (prompt("Nickname", localStorage.getItem("nickname") ?? 'Guest') ?? 'Guest');
+localStorage.setItem("nickname", playerNickname);
+
 let player: (Player | null) = null;
 let playerEntity: (Entity<PlayerModel> | null) = null;
 
