@@ -1,4 +1,5 @@
 import { Dictionary } from "../../../core/helpers/dictionary";
+import { clamp } from "../../../core/math/index";
 import Vector from "../../../core/math/vector";
 import Entity from "../../../dto/entity";
 import { ServerWorld } from "../../../dto/serverUpdate";
@@ -14,6 +15,11 @@ import { BlueZombie, GreenZombie, RedZombie } from "../zombies/zombieVariants";
 
 export default class GameWorld implements INetworkObject {
     public MAP_SIZE: number = 20;
+
+    public MAP_LEFT  : number = -(this.MAP_SIZE / 2);
+    public MAP_BOTTOM: number = -(this.MAP_SIZE / 2);
+    public MAP_TOP   : number =  (this.MAP_SIZE / 2);
+    public MAP_RIGHT : number =  (this.MAP_SIZE / 2);
 
     public players: Dictionary<Player> = {};
     public zombies: Dictionary<Zombie> = {};
@@ -57,7 +63,13 @@ export default class GameWorld implements INetworkObject {
         this.bullets.length = 0;
 
         // Update players
-        Object.values(this.players).forEach((player) => player.update(deltaTime, this));
+        Object.values(this.players).forEach((player) => {
+            player.update(deltaTime, this)
+
+            // Clamp position to map bounds
+            player.transform.position.x = clamp(player.transform.position.x, this.MAP_LEFT  , this.MAP_RIGHT);
+            player.transform.position.y = clamp(player.transform.position.y, this.MAP_BOTTOM, this.MAP_TOP  );
+        });
 
         // Update zombies
         Object.values(this.zombies).forEach((zombie) => zombie.update(deltaTime, Object.values(this.players)));
