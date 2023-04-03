@@ -16,7 +16,7 @@ export default class Player extends GameObject {
     public nickname: string;
 
     public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
-    public maxHealth: number = 1;
+    public maxHealth: number = 100;
     public health: number = this.maxHealth;
     public get isAlive(): boolean { return this.health > 0 }
 

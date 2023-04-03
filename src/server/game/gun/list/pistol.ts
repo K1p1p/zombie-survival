@@ -12,7 +12,7 @@ export default class Pistol extends Gun {
         this.ammoCapacity = 15;
         this.ammo = this.ammoCapacity;
         this.cooldownTime = 500;
-        this.attackPower = 34;
+        this.attackPower = 3.5;
         this.reloadTime = 500; // Ready delay
 
         this.firingModes = [

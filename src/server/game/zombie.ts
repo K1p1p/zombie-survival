@@ -9,9 +9,9 @@ import Circle from "../../core/geometry/circle";
 // Common zombie
 export default class Zombie extends GameObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
-    public maxHealth: number = 2;
+    public maxHealth: number = 10;
     public health: number = this.maxHealth;
-    public attackPower: number = 1;
+    public attackPower: number = 5;
 
     protected speed: number = 0.5;
 

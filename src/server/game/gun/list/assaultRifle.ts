@@ -12,7 +12,7 @@ export default class AssaultRifle extends Gun {
         this.ammoCapacity = 30;
         this.ammo = this.ammoCapacity;
         this.cooldownTime = 66;
-        this.attackPower = 33;
+        this.attackPower = 5;
         this.reloadTime = 1000; // Ready delay
 
         this.firingModes = [
