@@ -29,11 +29,6 @@ import { SingleplayerGame } from "./server/singleplayerGame";
 import ControlsUI from "./ui/controlsUI";
 
 enum KeyboardKey {
-    ArrowUp = "ArrowUp",
-    ArrowLeft = "ArrowLeft",
-    ArrowDown = "ArrowDown",
-    ArrowRight = "ArrowRight",
-
     W = "w",
     A = "a",
     S = "s",
@@ -99,10 +94,10 @@ function updatePlayerInput() {
     const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
 
     const moveDirection: Vector = VectorZero();
-    if (Keyboard.getKeyHold(KeyboardKey.ArrowRight) || Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.ArrowLeft) || Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.ArrowUp) || Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.ArrowDown) || Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
+    if (Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
 
     const playerRotation: number = Math.atan2(
         -(mousePos.y - player.position.y),

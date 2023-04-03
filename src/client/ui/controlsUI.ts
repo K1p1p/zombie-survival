@@ -2,7 +2,7 @@ export default class ControlsUI {
     public static render(context: CanvasRenderingContext2D): void {
         const text: string[] = [
             "-- CONTROLS --",
-            "MOVE: WASD or ARROWS",
+            "MOVE: WASD",
             "AIM: MOUSE",
             "SHOOT: LEFT MOUSE BUTTON",
             "RELOAD: R",
