@@ -28,10 +28,10 @@ export default abstract class Zombie extends GameObject {
     }
 
     update(deltaTime: number, players: Player[]) {
-        const nearestPlayer: Player | null = getNearestGameObjectFromVector(players, this.transform.position);
+        const alivePlayers: Player[] = players.filter((player) => player.isAlive);
+        const nearestPlayer: Player | null = getNearestGameObjectFromVector(alivePlayers, this.transform.position);
 
         if(!nearestPlayer) { return; }
-        if(!nearestPlayer.isAlive) { return; }
 
         this.transform.lookAt(nearestPlayer.transform.position);
 
