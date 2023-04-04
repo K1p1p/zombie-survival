@@ -13,6 +13,7 @@ import Gun from "../gun/gun";
 import Player from "../player";
 import Zombie from "../zombies/zombie";
 import { BlueZombie, GreenZombie, RedZombie } from "../zombies/zombieVariants";
+import ThreatManager from "./threatManager";
 
 export default class GameWorld implements INetworkObject {
     public MAP_SIZE: number = 20;
@@ -26,8 +27,12 @@ export default class GameWorld implements INetworkObject {
     public zombies: Dictionary<Zombie> = {};
     public bullets: Bullet[] = [];
 
+    private threatManager: ThreatManager;
+
     constructor() {
-        const canCreateZombie = () => (Object.values(this.zombies).length <= 50)
+        this.threatManager = new ThreatManager(this);
+
+        const canCreateZombie = () => this.threatManager.shouldCreateNewZombies();
         const createZombie = (zombie: Zombie) => {
             this.zombies[zombie.id] = zombie;
         }
@@ -43,23 +48,25 @@ export default class GameWorld implements INetworkObject {
         setInterval(() => {
             if(!canCreateZombie()) { return; }
 
-            if(Math.random() <= 0.50) { createZombie(new RedZombie  (getRandomPosition())); }
-        }, 2000);
+            if(Math.random() <= 0.40) { createZombie(new RedZombie  (getRandomPosition())); }
+        }, 500);
 
         setInterval(() => {
             if(!canCreateZombie()) { return; }
 
-            if(Math.random() <= 0.25) { createZombie(new BlueZombie (getRandomPosition())); }
-        }, 2000);
+            if(Math.random() <= 0.15) { createZombie(new BlueZombie (getRandomPosition())); }
+        }, 1000);
 
         setInterval(() => {
             if(!canCreateZombie()) { return; }
 
-            if(Math.random() <= 0.10) { createZombie(new GreenZombie(getRandomPosition())); }
-        }, 2000);
+            if(Math.random() <= 0.05) { createZombie(new GreenZombie(getRandomPosition())); }
+        }, 2500);
     }
 
     public update(deltaTime: number) {
+        this.threatManager.update();
+
         // Clear bullets array
         this.bullets.length = 0;
 

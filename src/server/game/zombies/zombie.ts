@@ -11,6 +11,7 @@ export default abstract class Zombie extends GameObject {
     public attackPower: number = 5;
     public color: string = "red";
     public size: number = 0.1;
+    public threatValue: number = 1;
 
     protected speed: number = 0.5;
 
