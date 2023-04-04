@@ -6,8 +6,8 @@ export default class ControlsUI {
             "AIM: MOUSE",
             "SHOOT: LEFT MOUSE BUTTON",
             "RELOAD: R",
-            "CHANGE GUN: MOUSE WHEEL SCROLL",
-            "CHANGE GUN FIRE MODE: MOUSE WHEEL BUTTON",
+            "CHANGE GUN: MOUSE WHEEL SCROLL | Q | E",
+            "CHANGE GUN FIRE MODE: MOUSE WHEEL BUTTON | T",
         ];
    
         context.resetTransform();

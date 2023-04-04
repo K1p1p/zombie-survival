@@ -35,6 +35,11 @@ enum KeyboardKey {
     D = "d",
 
     R = "r",
+
+    Q = "q",
+    E = "e",
+
+    T = "t",
 }
 
 let lastMessageToServerTime: number = 0;
@@ -112,7 +117,7 @@ function updatePlayerInput() {
     // Gun update -----------
     if (!player.gun) { return; }
 
-    if (Keyboard.getKeyHold(KeyboardKey.R)) { playerRequest.reload = true; }
+    if (Keyboard.getKeyDown(KeyboardKey.R)) { playerRequest.reload = true; }
 
     if (Mouse.getButtonDown(0)) {
         if (player.gun.getAmmo() === 0) {
@@ -124,8 +129,17 @@ function updatePlayerInput() {
         playerRequest.shoot = false;
     }
 
-    if (Mouse.getButtonDown(1)) {
+    if (Mouse.getButtonDown(1) || Keyboard.getKeyDown(KeyboardKey.T)) {
         playerRequest.switchGunFireMode = true;
+    }
+
+    if (Keyboard.getKeyDown(KeyboardKey.Q)) { 
+        playerRequest.switchGun = true; 
+        playerRequest.switchGunOffset = -1;
+    }
+    else if (Keyboard.getKeyDown(KeyboardKey.E)) { 
+        playerRequest.switchGun = true; 
+        playerRequest.switchGunOffset = 1;
     }
 
     if (Mouse.getMouseWheelDelta() !== 0) {
