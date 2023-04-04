@@ -8,8 +8,6 @@ import Circle from "../../../core/geometry/circle";
 
 export default abstract class Zombie extends GameObject {
     public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
-    public maxHealth: number = 10;
-    public health: number = this.maxHealth;
     public attackPower: number = 5;
     public color: string = "red";
     public size: number = 0.1;

@@ -8,6 +8,7 @@ import PlayerModel from "../../../model/player";
 import ZombieModel from "../../../model/zombie";
 import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
+import GameObject from "../gameObject";
 import Gun from "../gun/gun";
 import Player from "../player";
 import Zombie from "../zombies/zombie";
@@ -75,18 +76,23 @@ export default class GameWorld implements INetworkObject {
         Object.values(this.zombies).forEach((zombie) => zombie.update(deltaTime, Object.values(this.players)));
     }
 
-    public createBullet(newBullet: (Bullet | null), gun: (Gun | null)) {
+    public createBullet(creator: GameObject, newBullet: (Bullet | null), gun: (Gun | null)) {
         if (!gun) { return; }
         if (!newBullet) { return; }
 
-        const hit = newBullet.collisionCheck(Object.values(this.zombies));
+        const ENABLE_FRIENDLY_FIRE: boolean = true;
+        const hitable: GameObject[] = ENABLE_FRIENDLY_FIRE
+            ? [...Object.values(this.zombies), ...Object.values(this.players)]
+            : Object.values(this.zombies)
+
+        const hit = newBullet.collisionCheck(creator, hitable);
 
         if (hit) {
-            // Damage zombie
+            // Damage gameobject
             hit.health -= gun.attackPower;
 
             if (hit.health <= 0) {
-                // Destroy zombie
+                // Destroy if zombie
                 delete this.zombies[hit.id];
             }
         }

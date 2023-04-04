@@ -1,10 +1,10 @@
-import Transform from "../../../../core/transform";
 import { FIRE_MODE, GUN_ID } from "../../../../model/gun";
+import GameObject from "../../gameObject";
 import Gun from "../gun";
 
 export default class AssaultRifle extends Gun {
-    constructor(wielderTransform: Transform) {
-        super(wielderTransform);
+    constructor(wielder: GameObject) {
+        super(wielder);
 
         this.id = GUN_ID.GENERIC_ASSAULT_RIFLE;
         this.name = "ASSAULT RIFLE";

@@ -1,8 +1,8 @@
 import { repeat } from "../../../core/math/index";
-import Transform from "../../../core/transform";
 import GunModel, { FIRE_MODE, GUN_ID } from "../../../model/gun";
 import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
+import GameObject from "../gameObject";
 import GameWorld from "../world/gameWorld";
 import { GunFiringMechanism } from "./gunFiringMechanism";
 
@@ -16,7 +16,7 @@ export default abstract class Gun implements INetworkObject {
 
     public attackPower: number = 1;
 
-    public wielderTransform: Transform;
+    public wielder: GameObject;
 
     public cooldownTime: number = 500; // ms
     private lastTimeFired: number = 0;
@@ -28,8 +28,8 @@ export default abstract class Gun implements INetworkObject {
 
     protected id: GUN_ID = GUN_ID.GENERIC_PISTOL;
 
-    constructor(wielderTransform: Transform) {
-        this.wielderTransform = wielderTransform;
+    constructor(wielder: GameObject) {
+        this.wielder = wielder;
 
         this.firingMechanism = new GunFiringMechanism(this.firingModes[this.firingModeIndex]);
     }
@@ -60,7 +60,7 @@ export default abstract class Gun implements INetworkObject {
             this.ammo -= 1;
             this.lastTimeFired = Date.now();
 
-            server.createBullet(new Bullet(this.wielderTransform.position, this.wielderTransform.direction), this);
+            server.createBullet(this.wielder, new Bullet(this.wielder.transform.position, this.wielder.transform.direction), this);
         }
     }
 

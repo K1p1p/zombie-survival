@@ -1,10 +1,10 @@
 import Vector, { VectorZero } from "../../core/math/vector";
 import Transform from "../../core/transform";
-import Zombie from "./zombies/zombie";
 import Line from "../../core/geometry/line";
 import INetworkObject from "../networkObject";
 import BulletModel from "../../model/bullet";
 import { getNearestGameObjectFromVector } from "../utils/getNearest";
+import GameObject from "./gameObject";
 
 export default class Bullet extends Transform implements INetworkObject {
     private endPosition: Vector = VectorZero();
@@ -23,22 +23,22 @@ export default class Bullet extends Transform implements INetworkObject {
         this.setDirection(direction);
     }
 
-    collisionCheck(zombies: Zombie[]): Zombie | null {
+    collisionCheck(creator: GameObject, targets: GameObject[]): GameObject | null {
         // Project trajectory
         this.endPosition = {
             x: (this.position.x + (this.direction.x * this.maxDistance)),
             y: (this.position.y + (this.direction.y * this.maxDistance)),
         }
 
-        // Zombie vs Bullet hit-test
-        const zombiesHit: Zombie[] = zombies.filter((zombie) => Line.intersectsCircle(this.collider, zombie.collider.collider));
-        const nearestZombieHit = getNearestGameObjectFromVector(zombiesHit, this.position);
+        // Gameobject vs Bullet hit-test (Excluding bullet creator)
+        const hit: GameObject[] = targets.filter((gameobject) => (creator !== gameobject) && Line.intersectsCircle(this.collider, gameobject.collider.collider));
+        const nearestHit = getNearestGameObjectFromVector(hit, this.position);
 
-        if(nearestZombieHit) {
+        if(nearestHit) {
             // Reposition bullet
-            this.endPosition  = nearestZombieHit.transform.position;
+            this.endPosition  = nearestHit.transform.position;
 
-            return nearestZombieHit;
+            return nearestHit;
         }
 
         return null;
