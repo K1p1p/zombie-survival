@@ -64,6 +64,7 @@ document.getElementById("start-button")!.onclick = () => {
     localStorage.setItem("nickname", nickname['value'] ?? 'Guest');
     localStorage.setItem(localStorage.getItem("session-mode") ?? '', serverURL['value']);
 
+    AudioManager.init();
 
     game = new Game();
 };

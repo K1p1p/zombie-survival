@@ -11,7 +11,7 @@ export default class AudioManager {
 
     public static playOnce(src: string, volume: number=1, pan: number=0) {
         if(!AudioManager.context || !AudioManager.soundPoll) { 
-            AudioManager.init();
+            return;
         }
 
         AudioManager.soundPoll?.play(src, volume, pan);
