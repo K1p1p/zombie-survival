@@ -35,7 +35,7 @@ export class AudioQueue {
         target.panner.pan.value = clamp(pan, -1, 1);
 
         target.audio.src = src;
-        target.audio.volume = volume;
+        target.audio.volume = clamp(volume, 0, 1);
         target.audio.play();
     }
 }
