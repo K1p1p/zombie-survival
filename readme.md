@@ -20,12 +20,6 @@ npm install
 ```
 
 # Client
-## Modes
-### Singleplayer
-![Singleplayer image](/images/client-singleplayer-mode.png)
-### Multiplayer
-![Multiplayer image](/images/client-multiplayer-mode.png)
-
 ## Build
 ``` sh
 npm run build
