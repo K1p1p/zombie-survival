@@ -5,11 +5,8 @@ import { ServerMessageCallback } from "../../server/server";
 export class MultiplayerGame {
     webSocket: WebSocket;
 
-    constructor(playerNickname: string, onServerMessage: ServerMessageCallback) {
-        const serverEndpoint = prompt("Server endpoint", sessionStorage.getItem("server-endpoint") ?? 'ws://localhost:2222/') ?? "unknown";
-        sessionStorage.setItem("server-endpoint", serverEndpoint);
-
-        this.webSocket = new WebSocket(serverEndpoint ?? 'ws://localhost:2222/');
+    constructor(playerNickname: string, serverEndpoint: string, onServerMessage: ServerMessageCallback) {
+        this.webSocket = new WebSocket(serverEndpoint);
 
         this.webSocket.onmessage = async (event: MessageEvent) => {
             onServerMessage(event.data.toString());

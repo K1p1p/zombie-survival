@@ -14,7 +14,6 @@ import GunUI from "./ui/gunUI";
 import FpsUI from "./ui/fpsUI";
 
 import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage";
-import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage";
 
 import { GameObjectEntityList } from "./gameObjectEntity";
 import PlayerModel from "../model/player";
@@ -27,6 +26,47 @@ import Entity from "../dto/entity";
 import { MultiplayerGame } from "./server/multiplayerGame";
 import { SingleplayerGame } from "./server/singleplayerGame";
 import ControlsUI from "./ui/controlsUI";
+import AudioManager from "../core/browser/audio/manager";
+import { ServerMessage, SERVER_MESSAGE_TYPE } from "../dto/serverMessage";
+
+let game: Game | undefined;
+
+const serverURL = document.getElementById("server-url")!
+const nickname = document.getElementById("nickname")!
+
+nickname['value'] = localStorage.getItem('nickname') ?? 'Guest'
+
+function createSessionModeItem(element: HTMLElement, onCheck: (() => void)) {
+    if(element.id === localStorage.getItem("session-mode")) {
+        element['checked'] = true;
+        onCheck();
+    } 
+
+    element.onchange = () => {
+        if(element['checked']) { onCheck(); }
+    };
+}
+
+function setSessionMode(mode: string, valueLocalStorageKey: string, defaultValue: string) {
+    localStorage.setItem("session-mode", mode);
+
+    serverURL['value'] = localStorage.getItem(valueLocalStorageKey) ?? defaultValue;
+    serverURL['disabled'] = (mode === 'singleplayer');
+}
+
+createSessionModeItem(document.getElementById("singleplayer"     )!, () => setSessionMode('singleplayer'     , ''                 , ''));
+createSessionModeItem(document.getElementById("multiplayer"      )!, () => setSessionMode('multiplayer'      , 'multiplayer'      , 'ws://0.tcp.sa.ngrok.io:XXXXX'));
+createSessionModeItem(document.getElementById("local-multiplayer")!, () => setSessionMode('local-multiplayer', 'local-multiplayer', 'ws://localhost:2222/'));
+
+document.getElementById("start-button")!.onclick = () => {
+    document.getElementById("start-menu-modal")!.style.display = "none";
+
+    localStorage.setItem("nickname", nickname['value'] ?? 'Guest');
+    localStorage.setItem(localStorage.getItem("session-mode") ?? '', serverURL['value']);
+
+
+    game = new Game();
+};
 
 enum KeyboardKey {
     W = "w",
@@ -42,239 +82,244 @@ enum KeyboardKey {
     T = "t",
 }
 
-let lastMessageToServerTime: number = 0;
-let lastMessageFromServerTime: number = Number.POSITIVE_INFINITY;
-function shouldSendMessageToServer(): boolean { return (lastMessageFromServerTime > lastMessageToServerTime); }
+class Game {
+    server: (SingleplayerGame | MultiplayerGame);
 
-document.getElementById("respawn-button")!.onclick = requestRespawn;
+    lastMessageToServerTime: number = 0;
+    lastMessageFromServerTime: number = Number.POSITIVE_INFINITY;
+    shouldSendMessageToServer(): boolean { return (this.lastMessageFromServerTime > this.lastMessageToServerTime); }
 
-const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
+    canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+    context: CanvasRenderingContext2D = this.canvas.getContext("2d")!;
+    game: GameLoop;
 
-const game: GameLoop = new GameLoop(canvas, update, draw);
+    FPS: FpsUI = new FpsUI();
+    gunUI: GunUI = new GunUI();
 
-const map: {
-    width: number;
-    height: number;
-} = {
-    width: 0,
-    height: 0
-};
+    player: (Player | null) = null;
+    playerEntity: (Entity<PlayerModel> | null) = null;
 
-const otherPlayers = new GameObjectEntityList<Player, Entity<PlayerModel>>({
-    createGameObject: (entity) => new Player(entity.data),
-    updateEntity: (go, entity) => go.updateState(entity.data)
-});
+    bullets: Bullet[] = [];
 
-const zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
-    createGameObject: (entity) => new Zombie(entity.data),
-    updateEntity: (go, entity) => go.updateState(entity.data)
-});
+    otherPlayers: GameObjectEntityList<Player, Entity<PlayerModel>>;
+    zombies: GameObjectEntityList<Zombie, Entity<ZombieModel>>;
 
-const bullets: Bullet[] = [];
+    map: { width: number; height: number };
 
-const playerNickname: string = (prompt("Nickname", localStorage.getItem("nickname") ?? 'Guest') ?? 'Guest');
-localStorage.setItem("nickname", playerNickname);
+    playerRequest: ClientPlayerUpdate = {
+        moveDirection: VectorZero(),
+        rotation: 0,
+        shoot: false,
+        reload: false,
+        switchGun: false,
+        switchGunOffset: 0,
+        switchGunFireMode: false
+    }
 
-let player: (Player | null) = null;
-let playerEntity: (Entity<PlayerModel> | null) = null;
+    constructor() {
+        this.game = new GameLoop(this.canvas, this.update.bind(this), this.draw.bind(this));
+        
+        document.getElementById("respawn-button")!.onclick = this.requestRespawn.bind(this);
 
-const playerRequest: ClientPlayerUpdate = {
-    moveDirection: VectorZero(),
-    rotation: 0,
-    shoot: false,
-    reload: false,
-    switchGun: false,
-    switchGunOffset: 0,
-    switchGunFireMode: false
-}
+        this.otherPlayers = new GameObjectEntityList<Player, Entity<PlayerModel>>({
+            createGameObject: (entity) => new Player(entity.data),
+            updateEntity: (go, entity) => go.updateState(entity.data)
+        });
+    
+        this.zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
+            createGameObject: (entity) => new Zombie(entity.data),
+            updateEntity: (go, entity) => go.updateState(entity.data)
+        });
 
-const FPS: FpsUI = new FpsUI();
-const gunUI: GunUI = new GunUI();
+        this.map = { width: 0, height: 0 };
 
-function updatePlayerInput() {
-    // Player update -----------
-    if (!player) { return; }
+        const nickname: string = localStorage.getItem("nickname") ?? 'Guest';
 
-    const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
+        this.server = (localStorage.getItem("session-mode") === 'singleplayer') 
+            ? new SingleplayerGame(nickname, this.onServerMessageReceived.bind(this))
+            : new MultiplayerGame(nickname, serverURL['value'], this.onServerMessageReceived.bind(this))
+    }
 
-    const moveDirection: Vector = VectorZero();
-    if (Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
-    if (Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
-
-    const playerRotation: number = Math.atan2(
-        -(mousePos.y - player.position.y),
-        (mousePos.x - player.position.x)
-    );
-
-    playerRequest.moveDirection = moveDirection;
-    playerRequest.rotation = playerRotation;
-
-    Camera.position = player.position;
-
-    // Gun update -----------
-    if (!player.gun) { return; }
-
-    if (Keyboard.getKeyDown(KeyboardKey.R)) { playerRequest.reload = true; }
-
-    if (Mouse.getButtonDown(0)) {
-        if (player.gun.getAmmo() === 0) {
-            playerRequest.reload = true;
-        } else {
-            playerRequest.shoot = true;
+    updatePlayerInput() {
+        // Player update -----------
+        if (!this.player) { return; }
+    
+        const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
+    
+        const moveDirection: Vector = VectorZero();
+        if (Keyboard.getKeyHold(KeyboardKey.D)) { moveDirection.x += 1; }
+        if (Keyboard.getKeyHold(KeyboardKey.A)) { moveDirection.x -= 1; }
+        if (Keyboard.getKeyHold(KeyboardKey.W)) { moveDirection.y += 1; }
+        if (Keyboard.getKeyHold(KeyboardKey.S)) { moveDirection.y -= 1; }
+    
+        const playerRotation: number = Math.atan2(
+            -(mousePos.y - this.player.position.y),
+            (mousePos.x - this.player.position.x)
+        );
+    
+        this.playerRequest.moveDirection = moveDirection;
+        this.playerRequest.rotation = playerRotation;
+    
+        Camera.position = this.player.position;
+    
+        // Gun update -----------
+        if (!this.player.gun) { return; }
+    
+        if (Keyboard.getKeyDown(KeyboardKey.R)) { this.playerRequest.reload = true; }
+    
+        if (Mouse.getButtonDown(0)) {
+            if (this.player.gun.getAmmo() === 0) {
+                this.playerRequest.reload = true;
+            } else {
+                this.playerRequest.shoot = true;
+            }
+        } else if (Mouse.getButtonUp(0)) {
+            this.playerRequest.shoot = false;
         }
-    } else if (Mouse.getButtonUp(0)) {
-        playerRequest.shoot = false;
-    }
-
-    if (Mouse.getButtonDown(1) || Keyboard.getKeyDown(KeyboardKey.T)) {
-        playerRequest.switchGunFireMode = true;
-    }
-
-    if (Keyboard.getKeyDown(KeyboardKey.Q)) { 
-        playerRequest.switchGun = true; 
-        playerRequest.switchGunOffset = -1;
-    }
-    else if (Keyboard.getKeyDown(KeyboardKey.E)) { 
-        playerRequest.switchGun = true; 
-        playerRequest.switchGunOffset = 1;
-    }
-
-    if (Mouse.getMouseWheelDelta() !== 0) {
-        playerRequest.switchGun = true;
-        playerRequest.switchGunOffset = Mouse.getMouseWheelDelta();
-    }
-}
-
-function update(deltaTime: number) {
-    if (!player) { return; }
-
-    updatePlayerInput();
-
-    player.update(deltaTime);
-    zombies.forEach((zombie) => zombie.gameObject.update(deltaTime));
-    otherPlayers.forEach((otherPlayer) => otherPlayer.gameObject.update(deltaTime));
-
-    // Send updates to server
-    if (shouldSendMessageToServer()) {
-        sendUpdateToServer();
-
-        // Reset request buffer
-        playerRequest.switchGun = false;
-        playerRequest.reload = false;
-        playerRequest.switchGunFireMode = false;
-    }
-}
-
-function draw(deltaTime: number) {
-    if (!player) { return; }
-
-    for (let x = -(map.width / 2); x <= (map.width / 2); x++) {
-        for (let y = -(map.height / 2); y <= (map.height / 2); y++) {
-            new CoordinateText({ x: x, y: y }).render(context);
+    
+        if (Mouse.getButtonDown(1) || Keyboard.getKeyDown(KeyboardKey.T)) {
+            this.playerRequest.switchGunFireMode = true;
+        }
+    
+        if (Keyboard.getKeyDown(KeyboardKey.Q)) { 
+            this.playerRequest.switchGun = true; 
+            this.playerRequest.switchGunOffset = -1;
+        }
+        else if (Keyboard.getKeyDown(KeyboardKey.E)) { 
+            this.playerRequest.switchGun = true; 
+            this.playerRequest.switchGunOffset = 1;
+        }
+    
+        if (Mouse.getMouseWheelDelta() !== 0) {
+            this.playerRequest.switchGun = true;
+            this.playerRequest.switchGunOffset = Mouse.getMouseWheelDelta();
         }
     }
-
-    // Mouse position displayer
-    const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
-    new CoordinateText(mousePos).render(context);
-
-    // Draw bullets
-    bullets.forEach((bullet) => bullet.render(context));
-
-    // Draw zombies
-    zombies.forEach((zombie) => zombie.gameObject.render(context));
-
-    // Draw other players
-    otherPlayers.forEach((otherPlayer) => {
-        if (otherPlayer.id === playerEntity?.id) { return; }
-
-        otherPlayer.gameObject.render(context);
-    });
-
-    // Draw player
-    player.render(context);
-
-    gunUI.render(context, player.gun.state.current);
-    FPS.render(context, deltaTime);
-    ControlsUI.render(context)
-
-    // Clear bullets
-    bullets.length = 0;
-}
-
-// Request --------------------
-function sendUpdateToServer() {
-    if (!playerEntity) { return; }
-
-    const payload: ClientMessage<ClientPlayerUpdate> = {
-        playerId: playerEntity.id,
-        type: CLIENT_MESSAGE_TYPE.UPDATE,
-        data: playerRequest
-    };
-
-    server.sendMessage(JSON.stringify(payload));
-
-    lastMessageToServerTime = Date.now();
-}
-
-function requestRespawn() {
-    if (!player) { return; }
-    if (!playerEntity) { return; }
-    if (player.state.current.health > 0) { return }
-
-    const request: ClientMessage = {
-        playerId: playerEntity.id,
-        type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
-        data: null
+    
+    update(deltaTime: number) {
+        if (!this.player) { return; }
+    
+        this.updatePlayerInput();
+    
+        this.player.update(deltaTime);
+        this.zombies.forEach((zombie) => zombie.gameObject.update(deltaTime));
+        this.otherPlayers.forEach((otherPlayer) => otherPlayer.gameObject.update(deltaTime));
+    
+        // Send updates to server
+        if (this.shouldSendMessageToServer()) {
+            this.sendUpdateToServer();
+    
+            // Reset request buffer
+            this.playerRequest.switchGun = false;
+            this.playerRequest.reload = false;
+            this.playerRequest.switchGunFireMode = false;
+        }
     }
-
-    server.sendMessage(JSON.stringify(request));
-
-    lastMessageToServerTime = Date.now();
-}
-
-//---------------------------- SERVER ----------------------------
-
-function onServerMessageReceived(data: string) {
-    lastMessageFromServerTime = Date.now();
-
-    const message: ServerMessage = JSON.parse(data);
-
-    if (message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
-        const serverData = message.data as unknown as ServerPlayerConnected;
-
-        playerEntity = serverData.player;
-        player = new Player(playerEntity.data);
-
-        return;
+    
+    draw(deltaTime: number) {
+        if (!this.player) { return; }
+    
+        for (let x = -(this.map.width / 2); x <= (this.map.width / 2); x++) {
+            for (let y = -(this.map.height / 2); y <= (this.map.height / 2); y++) {
+                new CoordinateText({ x: x, y: y }).render(this.context);
+            }
+        }
+    
+        // Mouse position displayer
+        const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
+        new CoordinateText(mousePos).render(this.context);
+    
+        // Draw bullets
+        this.bullets.forEach((bullet) => bullet.render(this.context));
+    
+        // Draw zombies
+        this.zombies.forEach((zombie) => zombie.gameObject.render(this.context));
+    
+        // Draw other players
+        this.otherPlayers.forEach((otherPlayer) => {
+            if (otherPlayer.id === this.playerEntity?.id) { return; }
+    
+            otherPlayer.gameObject.render(this.context);
+        });
+    
+        // Draw player
+        this.player.render(this.context);
+    
+        this.gunUI.render(this.context, this.player.gun.state.current);
+        this.FPS.render(this.context, deltaTime);
+        ControlsUI.render(this.context)
+    
+        // Clear bullets
+        this.bullets.length = 0;
     }
-
-    //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
-    if (!player) { return; }
-    if (!playerEntity) { return; }
-
-    const serverData = message.data as unknown as ServerWorldUpdate;
-
-    // Update player
-    player.updateState(serverData.player.data);
-    document.getElementById("respawn-modal")!.style.display = (player.state.current.health > 0) ? "none" : "flex";
-
-    // Update map size
-    map.width = serverData.world.map.width;
-    map.height = serverData.world.map.height;
-
-    // Create bullets
-    serverData.world.bullets.forEach((item) => {
-        bullets.push(new Bullet(item));
-    });
-
-    zombies.onServerUpdate(serverData.world.zombies);
-    otherPlayers.onServerUpdate(serverData.world.players);
+    
+    // Request --------------------
+    sendUpdateToServer() {
+        if (!this.playerEntity) { return; }
+    
+        const payload: ClientMessage<ClientPlayerUpdate> = {
+            playerId: this.playerEntity.id,
+            type: CLIENT_MESSAGE_TYPE.UPDATE,
+            data: this.playerRequest
+        };
+    
+        this.server.sendMessage(JSON.stringify(payload));
+    
+        this.lastMessageToServerTime = Date.now();
+    }
+    
+    requestRespawn() {
+        if (!this.player) { return; }
+        if (!this.playerEntity) { return; }
+        if (this.player.state.current.health > 0) { return }
+    
+        const request: ClientMessage = {
+            playerId: this.playerEntity.id,
+            type: CLIENT_MESSAGE_TYPE.REQUEST_RESPAWN,
+            data: null
+        }
+    
+        this.server.sendMessage(JSON.stringify(request));
+    
+        this.lastMessageToServerTime = Date.now();
+    }
+    
+    //---------------------------- SERVER ----------------------------
+    
+    onServerMessageReceived(data: string) {
+        this.lastMessageFromServerTime = Date.now();
+    
+        const message: ServerMessage = JSON.parse(data);
+    
+        if (message.type === SERVER_MESSAGE_TYPE.ON_CONNECTED) {
+            const serverData = message.data as unknown as ServerPlayerConnected;
+    
+            this.playerEntity = serverData.player;
+            this.player = new Player(this.playerEntity.data);
+    
+            return;
+        }
+    
+        //---------------------------- SERVER_MESSAGE_TYPE.UPDATE ----------------------------
+        if (!this.player) { return; }
+        if (!this.playerEntity) { return; }
+    
+        const serverData = message.data as unknown as ServerWorldUpdate;
+    
+        // Update player
+        this.player.updateState(serverData.player.data);
+        document.getElementById("respawn-modal")!.style.display = (this.player.state.current.health > 0) ? "none" : "flex";
+    
+        // Update map size
+        this.map.width = serverData.world.map.width;
+        this.map.height = serverData.world.map.height;
+    
+        // Create bullets
+        serverData.world.bullets.forEach((item) => {
+            this.bullets.push(new Bullet(item));
+        });
+    
+        this.zombies.onServerUpdate(serverData.world.zombies);
+        this.otherPlayers.onServerUpdate(serverData.world.players);
+    }
 }
-
-//---------------------------- GAME SERVER ----------------------------
-// Chosse between [SingleplayerGame] and [MultiplayerGame]
-const server = new SingleplayerGame(playerNickname, onServerMessageReceived);

@@ -7,6 +7,62 @@
     <body>
         <canvas id="canvas" width="800" height="800" style="width: 100%; height: 100%;"></canvas>
 
+        <!-- START MENU-->
+        <div 
+            id="start-menu-modal"
+            style="
+                display: flex; 
+                position: absolute; 
+                top: 0px; 
+                bottom: 0px; 
+                left: 0px; 
+                right: 0px; 
+                background-color: rgba(0, 0, 0, 0.80); 
+                align-items: center;
+                justify-content: center;"
+        >
+            <div 
+                style="
+                    display: flex; 
+                    flex-shrink: 0;
+                    flex-direction: column; 
+                    padding: 50px;
+                    background-color: white; 
+                    border-radius: 15px; 
+                    align-items: center; 
+                    justify-content: center;"
+            >
+                <b>Session mode:</b>
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <div style="display: flex; flex-direction: row;">
+                        <input type="radio" id="singleplayer" name="session-mode" checked>
+                        <label for="singleplayer">Singleplayer</label><br>
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <input type="radio" id="multiplayer" name="session-mode">
+                        <label for="multiplayer">Multiplayer</label><br>
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <input type="radio" id="local-multiplayer" name="session-mode">
+                        <label for="multiplayer">Local Multiplayer</label><br>
+                    </div>
+                </div>
+
+                <br><br>
+
+                <b>Server URL:</b>
+                <input type="text" id="server-url" value=""><br>
+
+                <b>Nickname:</b>
+                <input type="text" id="nickname" value=""><br>
+
+                <button id="start-button">
+                    START
+                </button>
+            </div>
+        </div>
+
+        <!-- RESPAWN MENU-->
         <div 
             id="respawn-modal"
             style="
