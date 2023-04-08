@@ -43,7 +43,7 @@ webSocketServer.on('connection', (client: WebSocket) => {
 
         const player = Object.values(server.world.players).find((player) => (player.webSocketId === clientUID));
         if(player) {
-            delete server.world.players[player.id];
+            delete server.world.players[player.entityId];
         }
     })
 });
