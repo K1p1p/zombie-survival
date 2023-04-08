@@ -10,7 +10,7 @@ export class MedKit extends Loot {
 
     toModel(): Entity<LootModel> {
         return {
-            id: this.id,
+            id: this.entityId,
             data: {
                 name: "MedKit",
                 itemType: LOOT_TYPE.MEDKIT,

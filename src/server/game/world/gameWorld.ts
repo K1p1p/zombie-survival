@@ -39,7 +39,7 @@ export default class GameWorld implements INetworkObject {
 
         const canCreateZombie = () => this.threatManager.shouldCreateNewZombies();
         const createZombie = (zombie: Zombie) => {
-            this.zombies[zombie.id] = zombie;
+            this.zombies[zombie.entityId] = zombie;
         }
         const getRandomPosition = () => {
             const pos: Vector = {
@@ -72,7 +72,7 @@ export default class GameWorld implements INetworkObject {
         for (let index = 0; index < 10; index++) {
             const newLoot: Loot = new MedKit();
             newLoot.transform.position = getRandomPosition();
-            this.loot[newLoot.id] = newLoot;
+            this.loot[newLoot.entityId] = newLoot;
         }
     }
 
@@ -102,7 +102,7 @@ export default class GameWorld implements INetworkObject {
                 
                 if(Circle.intersectsSphere(player.collider.collider, loot.collider.collider)) {
                     loot.use(player);
-                    delete this.loot[loot.id];
+                    delete this.loot[loot.entityId];
                     break;
                 }
             }
@@ -126,7 +126,7 @@ export default class GameWorld implements INetworkObject {
 
             if (hit.health <= 0) {
                 // Destroy if zombie
-                delete this.zombies[hit.id];
+                delete this.zombies[hit.entityId];
             }
         }
 

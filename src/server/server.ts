@@ -81,7 +81,7 @@ export default class Server {
                     const newPlayer: Player = new Player(clientData.nickname);
                     newPlayer.webSocketId = webSocketId;
 
-                    this.world.players[newPlayer.id] = newPlayer;
+                    this.world.players[newPlayer.entityId] = newPlayer;
 
                     const payload: ServerMessage<ServerPlayerConnected> = {
                         type: SERVER_MESSAGE_TYPE.ON_CONNECTED,

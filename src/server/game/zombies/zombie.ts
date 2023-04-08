@@ -7,7 +7,7 @@ import { getNearestGameObjectFromVector } from "../../utils/getNearest";
 import Circle from "../../../core/geometry/circle";
 
 export default abstract class Zombie extends GameObject {
-    public id: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
+    public entityId: string = ("zombie:" + Math.random() * Number.MAX_SAFE_INTEGER);
     public attackPower: number = 5;
     public color: string = "red";
     public size: number = 0.1;
@@ -50,7 +50,7 @@ export default abstract class Zombie extends GameObject {
 
     toModel(): Entity<ZombieModel> {
         return {
-            id: this.id,
+            id: this.entityId,
             data: {
                 size: this.size,
                 color: this.color,

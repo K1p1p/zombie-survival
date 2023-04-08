@@ -3,7 +3,7 @@ import INetworkObject from "../networkObject";
 import CircleCollider from "./circleCollider";
 
 export default abstract class GameObject implements INetworkObject {
-    public abstract id: string;
+    public abstract entityId: string;
 
     public transform: Transform;
     //public rigidbody: Rigidbody;

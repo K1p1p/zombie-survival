@@ -15,7 +15,7 @@ export default class Player extends GameObject {
 
     public nickname: string;
 
-    public id: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
+    public entityId: string = ("player:" + Math.random() * Number.MAX_SAFE_INTEGER);
 
     public gun: Gun;
     private gunTrigger: GunTrigger = new GunTrigger();
@@ -97,7 +97,7 @@ export default class Player extends GameObject {
 
     toModel(): Entity<PlayerModel> {
         return {
-            id: this.id,
+            id: this.entityId,
             data: {
                 nickname: this.nickname,
                 health: this.health,
