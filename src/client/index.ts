@@ -28,6 +28,8 @@ import { SingleplayerGame } from "./server/singleplayerGame";
 import ControlsUI from "./ui/controlsUI";
 import AudioManager from "../core/browser/audio/manager";
 import { ServerMessage, SERVER_MESSAGE_TYPE } from "../dto/serverMessage";
+import Loot from "./game/loot";
+import { LootModel } from "../model/loot";
 
 let game: Game | undefined;
 
@@ -105,6 +107,8 @@ class Game {
     otherPlayers: GameObjectEntityList<Player, Entity<PlayerModel>>;
     zombies: GameObjectEntityList<Zombie, Entity<ZombieModel>>;
 
+    loot: GameObjectEntityList<Loot, Entity<LootModel>>;
+
     map: { width: number; height: number };
 
     playerRequest: ClientPlayerUpdate = {
@@ -129,6 +133,11 @@ class Game {
     
         this.zombies = new GameObjectEntityList<Zombie, Entity<ZombieModel>>({
             createGameObject: (entity) => new Zombie(entity.data),
+            updateEntity: (go, entity) => go.updateState(entity.data)
+        });
+
+        this.loot = new GameObjectEntityList<Loot, Entity<LootModel>>({
+            createGameObject: (entity) => new Loot(entity.data),
             updateEntity: (go, entity) => go.updateState(entity.data)
         });
 
@@ -229,6 +238,9 @@ class Game {
         // Mouse position displayer
         const mousePos = Camera.projectScreenToWorld(Mouse.getScreenPosition());
         new CoordinateText(mousePos).render(this.context);
+
+        // Draw loot
+        this.loot.forEach((loot) => loot.gameObject.render(this.context));
     
         // Draw bullets
         this.bullets.forEach((bullet) => bullet.render(this.context));
@@ -322,5 +334,7 @@ class Game {
     
         this.zombies.onServerUpdate(serverData.world.zombies);
         this.otherPlayers.onServerUpdate(serverData.world.players);
+
+        this.loot.onServerUpdate(serverData.world.loot);
     }
 }

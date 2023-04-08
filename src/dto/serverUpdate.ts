@@ -1,4 +1,5 @@
 import BulletModel from "../model/bullet";
+import { LootModel } from "../model/loot";
 import PlayerModel from "../model/player";
 import ZombieModel from "../model/zombie";
 import Entity from "./entity";
@@ -6,6 +7,8 @@ import Entity from "./entity";
 export interface ServerWorld {
     players: Entity<PlayerModel>[];
     zombies: Entity<ZombieModel>[];
+    
+    loot: Entity<LootModel>[];
 
     bullets: BulletModel[];
     

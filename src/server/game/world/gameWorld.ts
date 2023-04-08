@@ -1,15 +1,19 @@
+import Circle from "../../../core/geometry/circle";
 import { Dictionary } from "../../../core/helpers/dictionary";
 import { clamp } from "../../../core/math/index";
 import Vector from "../../../core/math/vector";
 import Entity from "../../../dto/entity";
 import { ServerWorld } from "../../../dto/serverUpdate";
 import BulletModel from "../../../model/bullet";
+import { LootModel } from "../../../model/loot";
 import PlayerModel from "../../../model/player";
 import ZombieModel from "../../../model/zombie";
 import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
 import GameObject from "../gameObject";
 import Gun from "../gun/gun";
+import Loot from "../loot/loot";
+import { MedKit } from "../loot/medKit";
 import Player from "../player";
 import Zombie from "../zombies/zombie";
 import { BlueZombie, GreenZombie, RedZombie } from "../zombies/zombieVariants";
@@ -25,6 +29,7 @@ export default class GameWorld implements INetworkObject {
 
     public players: Dictionary<Player> = {};
     public zombies: Dictionary<Zombie> = {};
+    public loot: Dictionary<Loot> = {};
     public bullets: Bullet[] = [];
 
     private threatManager: ThreatManager;
@@ -62,6 +67,13 @@ export default class GameWorld implements INetworkObject {
 
             if(Math.random() <= 0.05) { createZombie(new GreenZombie(getRandomPosition())); }
         }, 2500);
+
+
+        for (let index = 0; index < 10; index++) {
+            const newLoot: Loot = new MedKit();
+            newLoot.transform.position = getRandomPosition();
+            this.loot[newLoot.id] = newLoot;
+        }
     }
 
     public update(deltaTime: number) {
@@ -81,6 +93,20 @@ export default class GameWorld implements INetworkObject {
 
         // Update zombies
         Object.values(this.zombies).forEach((zombie) => zombie.update(deltaTime, Object.values(this.players)));
+
+        // Update loot
+        Object.values(this.loot).forEach((loot) => {
+            const players: Player[] = Object.values(this.players);
+            for (let index = 0; index < players.length; index++) {
+                const player: Player = players[index];
+                
+                if(Circle.intersectsSphere(player.collider.collider, loot.collider.collider)) {
+                    loot.use(player);
+                    delete this.loot[loot.id];
+                    break;
+                }
+            }
+        });
     }
 
     public createBullet(creator: GameObject, newBullet: (Bullet | null), gun: (Gun | null)) {
@@ -116,6 +142,8 @@ export default class GameWorld implements INetworkObject {
 
             players: Object.values(this.players).map<Entity<PlayerModel>>((item) => item.toModel()),
             zombies: Object.values(this.zombies).map<Entity<ZombieModel>>((item) => item.toModel()),
+            
+            loot: Object.values(this.loot).map<Entity<LootModel>>((item) => item.toModel()),
 
             bullets: this.bullets.map<BulletModel>((item) => item.toModel()),
         };
