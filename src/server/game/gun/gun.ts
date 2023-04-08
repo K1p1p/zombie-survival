@@ -28,10 +28,19 @@ export default abstract class Gun implements INetworkObject {
 
     public id: GUN_ID = GUN_ID.GENERIC_PISTOL;
 
+    private reloadIntervalHandler: NodeJS.Timeout | undefined;
+
     constructor(wielder: GameObject) {
         this.wielder = wielder;
 
         this.firingMechanism = new GunFiringMechanism(this.firingModes[this.firingModeIndex]);
+    }
+
+    public onUnequip() {
+        if(this.isReloading && this.reloadIntervalHandler) {
+            this.isReloading = false;
+            clearInterval(this.reloadIntervalHandler);
+        }
     }
 
     protected setFireMode(index: number) {
@@ -64,19 +73,22 @@ export default abstract class Gun implements INetworkObject {
         }
     }
 
-    public reload() {
+    public reload(ammo: number) {
+        if (ammo === 0) { return; } // No ammo to reload
         if (this.isReloading) { return; } // Already reloading
         if (this.ammoCapacity === this.ammo) { return; } // Ammo already full
 
         this.isReloading = true;
 
         const onFinished = () => {
-            this.ammo = this.ammoCapacity;
+            this.ammo = ammo;
             this.isReloading = false;
             this.firingMechanism.reset();
+
+            this.reloadIntervalHandler = undefined;
         }
 
-        setTimeout(onFinished, this.reloadTime);
+       this.reloadIntervalHandler = setTimeout(onFinished, this.reloadTime);
     }
 
     toModel(): GunModel {
