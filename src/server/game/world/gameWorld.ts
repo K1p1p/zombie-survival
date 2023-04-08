@@ -5,6 +5,7 @@ import Vector from "../../../core/math/vector";
 import Entity from "../../../dto/entity";
 import { ServerWorld } from "../../../dto/serverUpdate";
 import BulletModel from "../../../model/bullet";
+import { GUN_ID } from "../../../model/gun";
 import { LootModel } from "../../../model/loot";
 import PlayerModel from "../../../model/player";
 import ZombieModel from "../../../model/zombie";
@@ -12,6 +13,7 @@ import INetworkObject from "../../networkObject";
 import Bullet from "../bullet";
 import GameObject from "../gameObject";
 import Gun from "../gun/gun";
+import { GunLoot } from "../loot/gunLoot";
 import Loot from "../loot/loot";
 import { MedKit } from "../loot/medKit";
 import Player from "../player";
@@ -73,6 +75,10 @@ export default class GameWorld implements INetworkObject {
             const newLoot: Loot = new MedKit();
             newLoot.transform.position = getRandomPosition();
             this.loot[newLoot.entityId] = newLoot;
+
+            const newLoot2: Loot = new GunLoot(GUN_ID.GENERIC_ASSAULT_RIFLE, "Assault Rifle", -1);
+            newLoot2.transform.position = getRandomPosition();
+            this.loot[newLoot2.entityId] = newLoot2;
         }
     }
 
@@ -101,9 +107,10 @@ export default class GameWorld implements INetworkObject {
                 const player: Player = players[index];
                 
                 if(Circle.intersectsSphere(player.collider.collider, loot.collider.collider)) {
-                    loot.use(player);
-                    delete this.loot[loot.entityId];
-                    break;
+                    if(loot.use(player)) {
+                        delete this.loot[loot.entityId];
+                        break;
+                    }
                 }
             }
         });

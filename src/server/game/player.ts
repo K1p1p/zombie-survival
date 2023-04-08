@@ -9,6 +9,7 @@ import AssaultRifle from "./gun/list/assaultRifle";
 import { GunTrigger, TRIGGER_STATE } from "./gun/gunTrigger";
 import GameObject from "./gameObject";
 import GameWorld from "./world/gameWorld";
+import { GUN_ID } from "../../model/gun";
 
 export default class Player extends GameObject {
     public webSocketId?: string;
@@ -41,11 +42,18 @@ export default class Player extends GameObject {
         this.nickname = nickname;
         this.guns = [
             new Pistol(this),
-            new AssaultRifle(this),
         ];
         this.gun = this.guns[this.gunIndex];
 
         this.collider.setSize(0.1);
+    }
+
+    hasGun(id: GUN_ID): boolean {
+        return (this.guns.find((gun: Gun) => gun.id === id) !== undefined);
+    }
+
+    addGun(newGun: Gun) {
+        this.guns.push(newGun);
     }
 
     reload() {

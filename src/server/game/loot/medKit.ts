@@ -4,8 +4,12 @@ import Player from "../player";
 import Loot from "./loot";
 
 export class MedKit extends Loot {
-    use(player: Player) {
+    use(player: Player): boolean {
+        if(player.health === player.maxHealth) { return false; }
+
         player.health = Math.min((player.health + 25), player.maxHealth);
+        
+        return true;
     }
 
     toModel(): Entity<LootModel> {

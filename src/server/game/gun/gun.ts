@@ -26,7 +26,7 @@ export default abstract class Gun implements INetworkObject {
     private firingModeIndex: number = 0;
     protected firingModes: FIRE_MODE[] = [FIRE_MODE.SEMI_AUTO];
 
-    protected id: GUN_ID = GUN_ID.GENERIC_PISTOL;
+    public id: GUN_ID = GUN_ID.GENERIC_PISTOL;
 
     constructor(wielder: GameObject) {
         this.wielder = wielder;

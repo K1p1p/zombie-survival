@@ -9,7 +9,12 @@ export default abstract class Loot implements INetworkObject {
     public transform: Transform = new Transform();
     public collider: CircleCollider = new CircleCollider(this.transform, 0.1);
 
-    abstract use(player: Player): void;
+    /**
+     * Try to use/pickup this loot
+     * @param player Target player.
+     * @returns The action success/failure.
+     */
+    abstract use(player: Player): boolean;
 
     abstract toModel(): any;
 }
