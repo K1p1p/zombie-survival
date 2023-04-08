@@ -22,9 +22,9 @@ export default class Loot extends GameObject {
         context.beginPath();
         context.fillStyle = 'red';
         context.fillRect(-15, -10, 30, 20);
-        context.fillStyle = 'white';
+        context.fillStyle = 'black';
         context.font = "15px Arial";
-        context.fillText('+', 0, 0);
+        context.fillText(this.data.name, 0, 0);
         context.fill();
         context.closePath();
     }

@@ -12,6 +12,7 @@ export class MedKit extends Loot {
         return {
             id: this.id,
             data: {
+                name: "MedKit",
                 itemType: LOOT_TYPE.MEDKIT,
                 transform: {
                     position: this.transform.position,
