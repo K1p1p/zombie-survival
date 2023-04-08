@@ -1,5 +1,5 @@
 import Loop from "../core/loop";
-import Player from "./game/player";
+import Player from "./game/player/player";
 import { CLIENT_MESSAGE_TYPE, ClientMessage } from "../dto/clientMessage";
 import { SERVER_MESSAGE_TYPE, ServerMessage } from "../dto/serverMessage";
 import { ClientPlayerUpdate } from "../dto/clientUpdate";

@@ -1,7 +1,7 @@
 import Transform from "../../../core/transform";
 import INetworkObject from "../../networkObject";
 import CircleCollider from "../circleCollider";
-import Player from "../player";
+import Player from "../player/player";
 
 export default abstract class Loot implements INetworkObject {
     public entityId: string = ("loot:" + Math.random() * Number.MAX_SAFE_INTEGER);

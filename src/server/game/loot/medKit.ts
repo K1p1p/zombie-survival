@@ -1,6 +1,6 @@
 import Entity from "../../../dto/entity";
 import { LootModel, LOOT_TYPE } from "../../../model/loot";
-import Player from "../player";
+import Player from "../player/player";
 import Loot from "./loot";
 
 export class MedKit extends Loot {

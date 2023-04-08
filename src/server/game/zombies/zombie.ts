@@ -2,7 +2,7 @@ import Vector from "../../../core/math/vector";
 import ZombieModel from "../../../model/zombie";
 import Entity from "../../../dto/entity";
 import GameObject from "../gameObject";
-import Player from "../player";
+import Player from "../player/player";
 import { getNearestGameObjectFromVector } from "../../utils/getNearest";
 import Circle from "../../../core/geometry/circle";
 

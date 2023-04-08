@@ -4,6 +4,7 @@ export default interface GunModel {
 
     ammo: number;
     ammoCapacity: number;
+    totalAmmo: number;
     isReloading: boolean;
 
     fireMode: FIRE_MODE;

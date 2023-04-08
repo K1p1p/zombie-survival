@@ -1,6 +1,7 @@
 import { repeat } from "../../../core/math/index";
 import GunModel, { FIRE_MODE, GUN_ID } from "../../../model/gun";
 import INetworkObject from "../../networkObject";
+import AmmoPouch from "../ammoPouch";
 import Bullet from "../bullet";
 import GameObject from "../gameObject";
 import GameWorld from "../world/gameWorld";
@@ -29,6 +30,7 @@ export default abstract class Gun implements INetworkObject {
     public id: GUN_ID = GUN_ID.GENERIC_PISTOL;
 
     private reloadIntervalHandler: NodeJS.Timeout | undefined;
+    private ammoPouch: AmmoPouch | undefined;
 
     constructor(wielder: GameObject) {
         this.wielder = wielder;
@@ -36,11 +38,17 @@ export default abstract class Gun implements INetworkObject {
         this.firingMechanism = new GunFiringMechanism(this.firingModes[this.firingModeIndex]);
     }
 
+    public onEquip(ammoPouch: AmmoPouch) {
+        this.ammoPouch = ammoPouch;
+    }
+
     public onUnequip() {
         if(this.isReloading && this.reloadIntervalHandler) {
             this.isReloading = false;
             clearInterval(this.reloadIntervalHandler);
         }
+
+        this.ammoPouch = undefined;
     }
 
     protected setFireMode(index: number) {
@@ -73,15 +81,18 @@ export default abstract class Gun implements INetworkObject {
         }
     }
 
-    public reload(ammo: number) {
-        if (ammo === 0) { return; } // No ammo to reload
+    public reload() {
+        const ammoPouch = this.ammoPouch?.getAmmoPouchItem(this.id);
+
+        if (!ammoPouch) { return; } // Ammo pouch not found
+        if (ammoPouch.ammo === 0) { return; } // No ammo to reload
         if (this.isReloading) { return; } // Already reloading
         if (this.ammoCapacity === this.ammo) { return; } // Ammo already full
 
         this.isReloading = true;
 
         const onFinished = () => {
-            this.ammo = ammo;
+            this.ammo += ammoPouch.removeAmmo(this.ammoCapacity - this.ammo);
             this.isReloading = false;
             this.firingMechanism.reset();
 
@@ -98,6 +109,7 @@ export default abstract class Gun implements INetworkObject {
 
             ammo: this.ammo,
             ammoCapacity: this.ammoCapacity,
+            totalAmmo: (this.ammoPouch?.getAmmoPouchItem(this.id)?.ammo) ?? 0,
             isReloading: this.isReloading,
             fireMode: this.firingModes[this.firingModeIndex]
         }

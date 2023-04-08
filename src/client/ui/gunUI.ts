@@ -6,7 +6,7 @@ export default class GunUI {
 
         return [
             `${gun.name} (${gun.fireMode})`,
-            `AMMO: ${gun.ammo}/${gun.ammoCapacity}`
+            `AMMO: ${gun.ammo}/${gun.ammoCapacity} (${gun.totalAmmo === null ? 'Infinite' : gun.totalAmmo})`
         ]
     }
 

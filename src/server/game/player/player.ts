@@ -9,6 +9,7 @@ import { GunTrigger, TRIGGER_STATE } from "../gun/gunTrigger";
 import GameObject from "../gameObject";
 import GameWorld from "../world/gameWorld";
 import { GUN_ID } from "../../../model/gun";
+import AmmoPouch from "../ammoPouch";
 
 export default class Player extends GameObject {
     public webSocketId?: string;
@@ -24,6 +25,8 @@ export default class Player extends GameObject {
     public gunIndex: number = 0;
 
     protected speed: number = 1;
+
+    public ammoPouch: AmmoPouch = new AmmoPouch();
 
     private actionBuffer: ClientPlayerUpdate = {
         moveDirection: VectorZero(),
@@ -43,6 +46,7 @@ export default class Player extends GameObject {
             new Pistol(this),
         ];
         this.gun = this.guns[this.gunIndex];
+        this.gun.onEquip(this.ammoPouch);
 
         this.collider.setSize(0.1);
     }
@@ -56,7 +60,7 @@ export default class Player extends GameObject {
     }
 
     reload() {
-        this.gun.reload(this.gun.ammoCapacity);
+        this.gun.reload();
     }
 
     update(deltaTime: number, gameWorld: GameWorld) {
@@ -94,6 +98,7 @@ export default class Player extends GameObject {
 
                 this.gunIndex = newGunIndex;
                 this.gun = this.guns[this.gunIndex];
+                this.gun.onEquip(this.ammoPouch);
     
                 this.actionBuffer.switchGun = false;
     

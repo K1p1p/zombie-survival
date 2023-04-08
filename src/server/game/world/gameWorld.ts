@@ -16,7 +16,7 @@ import Gun from "../gun/gun";
 import { GunLoot } from "../loot/gunLoot";
 import Loot from "../loot/loot";
 import { MedKit } from "../loot/medKit";
-import Player from "../player";
+import Player from "../player/player";
 import Zombie from "../zombies/zombie";
 import { BlueZombie, GreenZombie, RedZombie } from "../zombies/zombieVariants";
 import ThreatManager from "./threatManager";
@@ -76,7 +76,7 @@ export default class GameWorld implements INetworkObject {
             newLoot.transform.position = getRandomPosition();
             this.loot[newLoot.entityId] = newLoot;
 
-            const newLoot2: Loot = new GunLoot(GUN_ID.GENERIC_ASSAULT_RIFLE, "Assault Rifle", -1);
+            const newLoot2: Loot = new GunLoot(GUN_ID.GENERIC_ASSAULT_RIFLE, "Assault Rifle", 30);
             newLoot2.transform.position = getRandomPosition();
             this.loot[newLoot2.entityId] = newLoot2;
         }
