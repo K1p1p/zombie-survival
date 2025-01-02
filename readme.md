@@ -1,40 +1,58 @@
 # Project
+
 ## What is:
+
 A simple singleplayer/multiplayer browser game using typescript, websocket, webpack and node.<br>
 Nothing is optimized for the sake of simplicity.
 
 ## Why was this made:
+
 I couldn't find examples of simple network-based games.
 
 # File server
+
 Browser blocks local file access due CORS policy. Do not forget to run a local file server.<br>
 I use [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb), but [Serve](https://www.npmjs.com/package/serve) comes within this project and can be used too.
+
 ## Serve
-``` sh
+
+```sh
 npm run file-server
 ```
 
 # Node modules
-``` sh
+
+```sh
 npm install
 ```
 
 # Client
+
 ## Build
-``` sh
+
+```sh
 npm run build
 ```
 
+## Run
+
+```sh
+npm run client
+```
+
 # Local server
-``` sh
+
+```sh
 npm run server
 ```
 
 # External server
+
 ## ngrok
+
 I use [ngrok](https://ngrok.com/) forwarding to my local server.
 
-``` sh
+```sh
 ngrok tcp 2222
 ```
 
